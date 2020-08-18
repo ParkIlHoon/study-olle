@@ -1,6 +1,9 @@
 package com.studyolle.account;
 
+import com.studyolle.domain.Account;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 /**
  * <h1>Account 관련 요청 처리 클래스</h1>
@@ -20,6 +24,8 @@ import javax.validation.Valid;
 public class AccountController
 {
     private final SignUpFormValidator signUpFormValidator;
+    private final AccountRepository accountRepository;
+    private final MailSender mailSender;
 
     /**
      * SignUpForm 데이터를 받았을 때, 바인딩 처리.
@@ -59,6 +65,34 @@ public class AccountController
         {
             return "account/sign-up";
         }
+
+        // 객체 생성
+        Account account = Account.builder()
+                                    .nickname(signUpForm.getNickname())
+                                    .email(signUpForm.getEmail())
+                                    //TODO encoding 해야함
+                                    .password(signUpForm.getPassword())
+                                    .joinedAt(LocalDateTime.now())
+                                    .emailVerified(false)
+                                    .studyCreatedByWeb(true)
+                                    .studyEnrollmentResultByWeb(true)
+                                    .studyUpdatedByWeb(true)
+                                .build();
+
+        // 저장
+        Account newAccount = accountRepository.save(account);
+
+        // 토큰 생성
+        newAccount.generateEmailCheckToken();
+
+        // 메일 전송
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(newAccount.getEmail());
+        mailMessage.setSubject("[SturyOlle] 회원 가입 인증");
+        mailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken()
+                                            + "&email=" + newAccount.getEmail());
+
+        mailSender.send(mailMessage);
 
         return "redirect:/";
     }

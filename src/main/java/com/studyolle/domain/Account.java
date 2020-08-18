@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * <h1>사용자 계정 엔티티 클래스</h1>
@@ -107,4 +108,9 @@ public class Account
      * 스터디 업데이트 시 웹 알림 여부
      */
     private boolean studyUpdatedByWeb;
+
+    public void generateEmailCheckToken()
+    {
+        this.emailCheckToken = UUID.randomUUID().toString();
+    }
 }

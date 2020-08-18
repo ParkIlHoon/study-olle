@@ -28,7 +28,7 @@ public class SignUpFormValidator implements Validator
     @Override
     public void validate(Object o, Errors errors)
     {
-        SignUpForm signUpForm = (SignUpForm) errors;
+        SignUpForm signUpForm = (SignUpForm) o;
 
         // 이메일 값 중복 체크
         if (accountRepository.existsByEmail(signUpForm.getEmail()))
