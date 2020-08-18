@@ -113,4 +113,14 @@ public class Account
     {
         this.emailCheckToken = UUID.randomUUID().toString();
     }
+
+
+    /**
+     * 사용자 인증 메서드
+     */
+    public void verifyEmail()
+    {
+        this.emailVerified = true;
+        this.joinedAt = LocalDateTime.now();
+    }
 }

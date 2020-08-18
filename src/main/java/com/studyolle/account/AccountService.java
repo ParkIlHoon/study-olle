@@ -6,6 +6,7 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ public class AccountService
      * @param signUpForm 가입할 사용자 입력값 객체
      * @return 가입된 사용자 Account 객체
      */
+    @Transactional
     public Account joinAccount (SignUpForm signUpForm)
     {
         // 객체 생성
@@ -33,7 +35,6 @@ public class AccountService
                                     .email(signUpForm.getEmail())
                                     //패스워드 encoding
                                     .password(passwordEncoder.encode(signUpForm.getPassword()))
-                                    .joinedAt(LocalDateTime.now())
                                     .emailVerified(false)
                                     .studyCreatedByWeb(true)
                                     .studyEnrollmentResultByWeb(true)
