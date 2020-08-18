@@ -16,7 +16,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         http.authorizeRequests()
                 .mvcMatchers("/", "/login", "/sign-up", "/check-email", "/check-email-token",
                             "/email-login", "/check-email-login", "/login-link").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/profile/*", "/images/*").permitAll()
                 .anyRequest().authenticated();
     }
 }
