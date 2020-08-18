@@ -24,8 +24,7 @@ import java.time.LocalDateTime;
 public class AccountController
 {
     private final SignUpFormValidator signUpFormValidator;
-    private final AccountRepository accountRepository;
-    private final MailSender mailSender;
+    private final AccountService accountService;
 
     /**
      * SignUpForm 데이터를 받았을 때, 바인딩 처리.
@@ -66,33 +65,8 @@ public class AccountController
             return "account/sign-up";
         }
 
-        // 객체 생성
-        Account account = Account.builder()
-                                    .nickname(signUpForm.getNickname())
-                                    .email(signUpForm.getEmail())
-                                    //TODO encoding 해야함
-                                    .password(signUpForm.getPassword())
-                                    .joinedAt(LocalDateTime.now())
-                                    .emailVerified(false)
-                                    .studyCreatedByWeb(true)
-                                    .studyEnrollmentResultByWeb(true)
-                                    .studyUpdatedByWeb(true)
-                                .build();
-
-        // 저장
-        Account newAccount = accountRepository.save(account);
-
-        // 토큰 생성
-        newAccount.generateEmailCheckToken();
-
-        // 메일 전송
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(newAccount.getEmail());
-        mailMessage.setSubject("[SturyOlle] 회원 가입 인증");
-        mailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken()
-                                            + "&email=" + newAccount.getEmail());
-
-        mailSender.send(mailMessage);
+        // 회원 가입
+        accountService.joinAccount(signUpForm);
 
         return "redirect:/";
     }
