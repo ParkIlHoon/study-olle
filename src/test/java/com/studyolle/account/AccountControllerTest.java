@@ -80,7 +80,9 @@ class AccountControllerTest
         ;
 
         // DB 에 Account 가 정상적으로 저장되었는지
-        assertTrue(accountRepository.existsByEmail("chiwoo2074@gmail.com"));
+        Account account = accountRepository.findByEmail("chiwoo2074@gmail.com");
+        assertNotNull(account);
+        assertNotEquals(account.getPassword(), "12345678");
         // 메일은 발송 되었는지
         then(mailSender).should().send(any(SimpleMailMessage.class));
     }
