@@ -8,6 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Study olle</title>
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+    <script src="/node_modules/jdenticon/dist/jdenticon.min.js"></script>
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 </head>
 
 
@@ -36,10 +41,14 @@
                 <a class="nav-link" href="#" sec:authorize="!isAuthenticated()" th:href="@{/sign-up}">가입</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" sec:authorize="isAuthenticated()" th:href="@{/notifications}">알림</a>
+                <a class="nav-link" href="#" sec:authorize="isAuthenticated()" th:href="@{/notifications}">
+                    <i class="fa fa-bell-o" aria-hidden="true"></i>
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link btn btn-outline-primary" href="#" sec:authorize="isAuthenticated()" th:href="@{/new-study}">스터디 개설</a>
+                <a class="nav-link btn btn-outline-primary" href="#" sec:authorize="isAuthenticated()" th:href="@{/new-study}">
+                    <i class="fa fa-plus" aria-hidden="true"></i> 스터디 개설
+                </a>
             </li>
             <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
@@ -53,7 +62,6 @@
                     <h6 class="dropdown-header">
                         <span sec:authentication="name">Username</span>
                     </h6>
-                    <a class="dropdown-item" th:href="@{'/profile/' + ${#authentication.name}}">프로필</a>
                     <a class="dropdown-item" >스터디</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#" th:href="@{'/settings/profile'}">설정</a>
