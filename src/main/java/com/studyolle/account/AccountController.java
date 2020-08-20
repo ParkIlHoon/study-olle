@@ -64,7 +64,9 @@ public class AccountController
         }
 
         // 회원 가입
-        accountService.joinAccount(signUpForm);
+        Account account = accountService.joinAccount(signUpForm);
+        // 로그인 처리
+        accountService.login(account);
 
         return "redirect:/";
     }
@@ -88,7 +90,7 @@ public class AccountController
             return viewName;
         }
         // 토큰 검사
-        if (!byEmail.getEmailCheckToken().equals(token))
+        if (!byEmail.isValidToken(token))
         {
             model.addAttribute("error", "wrong.token");
             return viewName;
@@ -96,6 +98,8 @@ public class AccountController
 
         // 사용자 인증
         byEmail.verifyEmail();
+        // 로그인 처리
+        accountService.login(byEmail);
 
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", byEmail.getNickname());

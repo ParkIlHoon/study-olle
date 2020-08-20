@@ -123,4 +123,14 @@ public class Account
         this.emailVerified = true;
         this.joinedAt = LocalDateTime.now();
     }
+
+    /**
+     * 토큰 유효성 검사 메서드
+     * @param token 검사할 토큰
+     * @return 검사한 토큰의 유효성 여부
+     */
+    public boolean isValidToken(String token)
+    {
+        return this.emailCheckToken.equals(token);
+    }
 }
