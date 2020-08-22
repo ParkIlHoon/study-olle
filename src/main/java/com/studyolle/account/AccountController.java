@@ -106,6 +106,12 @@ public class AccountController
         return viewName;
     }
 
+    /**
+     * 이메일 인증 확인 페이지 요청
+     * @param account
+     * @param model
+     * @return
+     */
     @GetMapping("/check-email")
     public String checkEmail (@CurrentUser Account account, Model model)
     {
@@ -114,6 +120,12 @@ public class AccountController
         return "account/check-email";
     }
 
+    /**
+     * 이메일 인증메일 재발송 요청
+     * @param account
+     * @param model
+     * @return
+     */
     @GetMapping("/resend-confirm-email")
     public String resendConfirmEmail (@CurrentUser Account account, Model model)
     {
@@ -128,6 +140,13 @@ public class AccountController
         return "redirect:/";
     }
 
+    /**
+     * 프로필 페이지 요청
+     * @param nickname 프로필을 조회할 사용자의 닉네임
+     * @param model
+     * @param account
+     * @return
+     */
     @GetMapping("/profile/{nickname}")
     public String viewProfile (@PathVariable(value = "nickname") String nickname, Model model, @CurrentUser Account account)
     {
@@ -143,5 +162,4 @@ public class AccountController
 
         return "account/profile";
     }
-
 }
