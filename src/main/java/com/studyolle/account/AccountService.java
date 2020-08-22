@@ -8,6 +8,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,8 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class AccountService
+@Transactional
+public class AccountService implements UserDetailsService
 {
     private final AccountRepository accountRepository;
     private final MailSender mailSender;
@@ -31,7 +35,6 @@ public class AccountService
      * @param signUpForm 가입할 사용자 입력값 객체
      * @return 가입된 사용자 Account 객체
      */
-    @Transactional
     public Account joinAccount (SignUpForm signUpForm)
     {
         // 객체 생성
@@ -62,7 +65,6 @@ public class AccountService
      * 가입 인증 메일 발송 메서드
      * @param account 가입한 사용자
      */
-    @Transactional
     public void sendSignUpConfirmEmail(Account account)
     {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -89,5 +91,30 @@ public class AccountService
 
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(token);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserDetails loadUserByUsername(String emailOrNick) throws UsernameNotFoundException
+    {
+        Account account = accountRepository.findByEmail(emailOrNick);
+
+        if (account == null)
+        {
+            account = accountRepository.findByNickname(emailOrNick);
+        }
+
+        if (account == null)
+        {
+            throw new UsernameNotFoundException(emailOrNick);
+        }
+
+        return new UserAccount(account);
+    }
+
+    public void completeSignUp(Account byEmail)
+    {
+        byEmail.verifyEmail();
+        login(byEmail);
     }
 }

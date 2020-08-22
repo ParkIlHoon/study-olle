@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -96,10 +97,8 @@ public class AccountController
             return viewName;
         }
 
-        // 사용자 인증
-        byEmail.verifyEmail();
-        // 로그인 처리
-        accountService.login(byEmail);
+        // 사용자 인증 및 로그인 처리
+        accountService.completeSignUp(byEmail);
 
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", byEmail.getNickname());

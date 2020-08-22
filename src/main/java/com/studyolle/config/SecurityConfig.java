@@ -20,6 +20,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
                             "/email-login", "/check-email-login", "/login-link").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
                 .anyRequest().authenticated();
+
+        // 로그인 페이지 설정
+        http.formLogin()
+                .loginPage("/login")
+                    .permitAll();
+
+        // 로그아웃 설정
+        http.logout()
+                .logoutSuccessUrl("/");
     }
 
     @Override
