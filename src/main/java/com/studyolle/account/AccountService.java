@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -93,6 +94,12 @@ public class AccountService implements UserDetailsService
         context.setAuthentication(token);
     }
 
+    /**
+     * Spring Security 에서 로그인 처리를 위해 사용자를 조회하는 메서드
+     * @param emailOrNick
+     * @return
+     * @throws UsernameNotFoundException
+     */
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String emailOrNick) throws UsernameNotFoundException
@@ -112,9 +119,28 @@ public class AccountService implements UserDetailsService
         return new UserAccount(account);
     }
 
+    /**
+     * 사용자 이메일 인증 처리 메서드
+     * @param byEmail
+     */
     public void completeSignUp(Account byEmail)
     {
         byEmail.verifyEmail();
         login(byEmail);
+    }
+
+    /**
+     * 사용자 프로필 정보 수정 메서드
+     * @param account 수정할 사용자의 Account 객체
+     * @param profile 수정할 내용
+     */
+    public void updateProfile(Account account, Profile profile)
+    {
+        account.setUrl(profile.getUrl());
+        account.setBio(profile.getBio());
+        account.setOccupation(profile.getOccupation());
+        account.setLocation(profile.getLocation());
+
+        accountRepository.save(account);
     }
 }

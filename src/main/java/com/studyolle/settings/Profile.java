@@ -2,8 +2,13 @@ package com.studyolle.settings;
 
 import com.studyolle.domain.Account;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+/**
+ * <h1>사용자 프로필 수정 폼 클래스</h1>
+ */
 @Data
+@NoArgsConstructor
 public class Profile
 {
     /**
@@ -25,6 +30,8 @@ public class Profile
      * 사용자 정보 - 위치
      */
     private String location;
+
+
 
     public Profile(Account account)
     {
