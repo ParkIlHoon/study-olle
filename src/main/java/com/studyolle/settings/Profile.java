@@ -4,6 +4,8 @@ import com.studyolle.domain.Account;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Max;
+
 /**
  * <h1>사용자 프로필 수정 폼 클래스</h1>
  */
@@ -14,6 +16,7 @@ public class Profile
     /**
      * 사용자 정보
      */
+    @Max(value = 35)
     private String bio;
 
     /**
