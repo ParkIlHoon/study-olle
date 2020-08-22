@@ -127,4 +127,21 @@ public class AccountController
         accountService.sendSignUpConfirmEmail(account);
         return "redirect:/";
     }
+
+    @GetMapping("/profile/{nickname}")
+    public String viewProfile (@PathVariable(value = "nickname") String nickname, Model model, @CurrentUser Account account)
+    {
+        Account byNickname = accountRepository.findByNickname(nickname);
+
+        if (byNickname == null)
+        {
+            throw new IllegalArgumentException(nickname + " 에 해당하는 사용자가 없습니다.");
+        }
+
+        model.addAttribute("account", byNickname);
+        model.addAttribute("isOwner", byNickname.equals(account));
+
+        return "account/profile";
+    }
+
 }
