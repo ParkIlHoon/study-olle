@@ -10,6 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
+/**
+ * <h1>@WithAccount 어노테이션 Context Factory 클래스</h1>
+ *
+ * WithAccount 의 value 로 지정한 값을 nickname 으로 가지는 사용자 Account 를 생성하고, Spring Security 로그인 처리 한다.
+ * @see com.studyolle.WithAccount
+ */
 @RequiredArgsConstructor
 public class WithAccountSecurityContext implements WithSecurityContextFactory<WithAccount>
 {
