@@ -109,11 +109,18 @@ public class Account
      */
     private boolean studyUpdatedByWeb;
 
+    /**
+     * 인증 메일 발송 일시
+     */
+    private LocalDateTime confirmMailSendDate;
+
+    /**
+     * 이메일 인증 토큰 생성 메서드
+     */
     public void generateEmailCheckToken()
     {
         this.emailCheckToken = UUID.randomUUID().toString();
     }
-
 
     /**
      * 사용자 인증 메서드
@@ -132,5 +139,14 @@ public class Account
     public boolean isValidToken(String token)
     {
         return this.emailCheckToken.equals(token);
+    }
+
+    /**
+     * 인증 메일 발송 가능여부 확인 메서드
+     * @return 인증 메일 발송 가능여부
+     */
+    public boolean canSendConfirmEmail()
+    {
+        return LocalDateTime.now().isAfter(confirmMailSendDate.plusHours(1));
     }
 }

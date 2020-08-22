@@ -62,7 +62,8 @@ public class AccountService
      * 가입 인증 메일 발송 메서드
      * @param account 가입한 사용자
      */
-    private void sendSignUpConfirmEmail(Account account)
+    @Transactional
+    public void sendSignUpConfirmEmail(Account account)
     {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(account.getEmail());
@@ -71,6 +72,8 @@ public class AccountService
                                             + "&email=" + account.getEmail());
 
         mailSender.send(mailMessage);
+
+        account.setConfirmMailSendDate(LocalDateTime.now());
     }
 
     /**
