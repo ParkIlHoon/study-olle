@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +27,9 @@ class SettingsControllerTest
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @AfterEach
     void afterEach()
@@ -90,5 +94,56 @@ class SettingsControllerTest
 
         Account account = accountRepository.findByNickname("1hoon");
         assertNotEquals(bio, account.getBio());
+    }
+
+    @Test
+    @DisplayName("패스워드 수정 폼")
+    @WithAccount(value = "1hoon")
+    void password() throws Exception
+    {
+        mockMvc.perform(get("/settings/password"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/password"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("passwordForm"))
+        ;
+    }
+
+    @Test
+    @DisplayName("패스워드 수정하기")
+    @WithAccount(value = "1hoon")
+    void password_update() throws Exception
+    {
+        String newPassword = "12345678";
+        mockMvc.perform(
+                        post("/settings/password")
+                            .param("newPassword", newPassword)
+                            .param("newPasswordConfirm", newPassword)
+                            .with(csrf())
+                        )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/password"))
+                .andExpect(flash().attributeExists("message"))
+        ;
+    }
+
+    @Test
+    @DisplayName("패스워드 수정하기 - 입력값 오류")
+    @WithAccount(value = "1hoon")
+    void password_update_with_wrong_input() throws Exception
+    {
+        String newPassword = "12345678";
+        mockMvc.perform(
+                        post("/settings/password")
+                            .param("newPassword", newPassword)
+                            .param("newPasswordConfirm", "11111111")
+                            .with(csrf())
+                        )
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/password"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("passwordForm"))
+                .andExpect(model().hasErrors())
+        ;
     }
 }

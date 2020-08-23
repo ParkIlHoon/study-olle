@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.settings.PasswordForm;
 import com.studyolle.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.MailSender;
@@ -141,6 +142,18 @@ public class AccountService implements UserDetailsService
         account.setOccupation(profile.getOccupation());
         account.setLocation(profile.getLocation());
         account.setProfileImage(profile.getProfileImage());
+
+        accountRepository.save(account);
+    }
+
+    /**
+     * 사용자 패스워드 변경 메서드
+     * @param account 수정할 사용자의 Account 객체
+     * @param passwordForm 수정할 패스워드
+     */
+    public void updatePassword(Account account, PasswordForm passwordForm)
+    {
+        account.setPassword(passwordEncoder.encode(passwordForm.getNewPassword()));
 
         accountRepository.save(account);
     }
