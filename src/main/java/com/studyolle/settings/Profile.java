@@ -3,8 +3,7 @@ package com.studyolle.settings;
 import com.studyolle.domain.Account;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.Max;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * <h1>사용자 프로필 수정 폼 클래스</h1>
@@ -16,7 +15,7 @@ public class Profile
     /**
      * 사용자 정보
      */
-    @Max(value = 35)
+    @Length(max = 35)
     private String bio;
 
     /**
@@ -34,6 +33,10 @@ public class Profile
      */
     private String location;
 
+    /**
+     * 사용자 정보 - 이미지
+     */
+    private String profileImage;
 
 
     public Profile(Account account)
@@ -42,5 +45,6 @@ public class Profile
         this.url = account.getUrl();
         this.occupation = account.getOccupation();
         this.location = account.getLocation();
+        this.profileImage = account.getProfileImage();
     }
 }
