@@ -37,14 +37,4 @@ public class Profile
      * 사용자 정보 - 이미지
      */
     private String profileImage;
-
-
-    public Profile(Account account)
-    {
-        this.bio = account.getBio();
-        this.url = account.getUrl();
-        this.occupation = account.getOccupation();
-        this.location = account.getLocation();
-        this.profileImage = account.getProfileImage();
-    }
 }
