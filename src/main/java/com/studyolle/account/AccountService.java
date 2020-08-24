@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.settings.Notifications;
 import com.studyolle.settings.PasswordForm;
 import com.studyolle.settings.Profile;
 import lombok.RequiredArgsConstructor;
@@ -154,6 +155,23 @@ public class AccountService implements UserDetailsService
     public void updatePassword(Account account, PasswordForm passwordForm)
     {
         account.setPassword(passwordEncoder.encode(passwordForm.getNewPassword()));
+
+        accountRepository.save(account);
+    }
+
+    /**
+     * 사용자 알림 설정 변경 메서드
+     * @param account 수정할 사용자의 Account 객체
+     * @param notifications 수정할 알림 설정
+     */
+    public void updateNotifications(Account account, Notifications notifications)
+    {
+        account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
+        account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
+        account.setStudyEnrollmentResultByEmail(notifications.isStudyEnrollmentResultByEmail());
+        account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
+        account.setStudyUpdatedByEmail(notifications.isStudyUpdatedByEmail());
+        account.setStudyUpdatedByWeb(notifications.isStudyUpdatedByWeb());
 
         accountRepository.save(account);
     }

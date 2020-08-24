@@ -116,4 +116,46 @@ public class SettingsController
         attributes.addFlashAttribute("message", "패스워드가 정상적으로 수정되었습니다.");
         return "redirect:/settings/password";
     }
+
+    /**
+     * 알림 설정 폼 요청 메서드
+     * @param account
+     * @param model
+     * @return
+     */
+    @GetMapping("/settings/notifications")
+    public String notificationForm (@CurrentUser Account account, Model model)
+    {
+        model.addAttribute("account", account);
+        model.addAttribute("notifications", new Notifications(account));
+
+        return "settings/notifications";
+    }
+
+    /**
+     * 알림 설정 변경 요청 메서드
+     * @param account
+     * @param notifications
+     * @param errors
+     * @param model
+     * @param attributes
+     * @return
+     */
+    @PostMapping("/settings/notifications")
+    public String updateNotification(@CurrentUser Account account,
+                                     @Valid @ModelAttribute Notifications notifications,
+                                     Errors errors,
+                                     Model model,
+                                     RedirectAttributes attributes)
+    {
+        if (errors.hasErrors())
+        {
+            model.addAttribute("account", account);
+            return "settings/notifications";
+        }
+
+        accountService.updateNotifications(account, notifications);
+        attributes.addFlashAttribute("message", "알림 설정이 정상적으로 변경되었습니다.");
+        return "redirect:/settings/notifications";
+    }
 }
