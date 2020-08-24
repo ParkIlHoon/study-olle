@@ -182,4 +182,23 @@ public class AccountService implements UserDetailsService
         accountRepository.save(account);
         login(account);
     }
+
+    /**
+     * 사용자 이메일 로그인 링크 메일 발송 메서드
+     * @param account
+     */
+    public void sendLoginLink(Account account)
+    {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject("[StudyOlle] 이메일 로그인 링크");
+        mailMessage.setText("/login-by-email?token=" + account.getEmailCheckToken()
+                                         + "&email=" + account.getEmail());
+
+        mailSender.send(mailMessage);
+
+        account.setConfirmMailSendDate(LocalDateTime.now());
+
+        accountRepository.save(account);
+    }
 }
