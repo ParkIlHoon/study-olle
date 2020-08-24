@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.settings.NicknameForm;
 import com.studyolle.settings.Notifications;
 import com.studyolle.settings.PasswordForm;
 import com.studyolle.settings.Profile;
@@ -168,5 +169,17 @@ public class AccountService implements UserDetailsService
         modelMapper.map(notifications, account);
 
         accountRepository.save(account);
+    }
+
+    /**
+     * 사용자 닉네임 변경 메서드
+     * @param account
+     * @param nicknameForm
+     */
+    public void updateNickname(Account account, NicknameForm nicknameForm)
+    {
+        account.setNickname(nicknameForm.getNickname());
+        accountRepository.save(account);
+        login(account);
     }
 }
