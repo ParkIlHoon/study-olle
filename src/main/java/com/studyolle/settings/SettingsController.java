@@ -239,7 +239,7 @@ public class SettingsController
      */
     @PostMapping("/settings/tags/add")
     @ResponseBody
-    public ResponseEntity updateTag (@CurrentUser Account account, @RequestBody TagForm tagForm)
+    public ResponseEntity addTag (@CurrentUser Account account, @RequestBody TagForm tagForm)
     {
         String title = tagForm.getTagTitle();
 
@@ -251,6 +251,29 @@ public class SettingsController
         }
 
         accountService.addTag(account, tag);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 태그 삭제 요청 메서드
+     * @param account
+     * @param tagForm
+     * @return
+     */
+    @PostMapping("/settings/tags/remove")
+    @ResponseBody
+    public ResponseEntity removeTag (@CurrentUser Account account, @RequestBody TagForm tagForm)
+    {
+        String title = tagForm.getTagTitle();
+
+        Tag tag = tagRepository.findByTitle(title);
+
+        if(tag == null)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeTag(account, tag);
         return ResponseEntity.ok().build();
     }
 }

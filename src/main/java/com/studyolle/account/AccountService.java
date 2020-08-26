@@ -226,4 +226,15 @@ public class AccountService implements UserDetailsService
         Optional<Account> byId = accountRepository.findById(account.getId());
         return byId.orElseThrow().getTags();
     }
+
+    /**
+     * 사용자 태그 제거 메서드
+     * @param account
+     * @param tag
+     */
+    public void removeTag(Account account, Tag tag)
+    {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.orElseThrow().getTags().remove(tag);
+    }
 }
