@@ -1,5 +1,6 @@
 package com.studyolle.settings;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyolle.account.AccountService;
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,6 +34,7 @@ public class SettingsController
     private final ModelMapper modelMapper;
     private final NicknameValidator nicknameValidator;
     private final TagRepository tagRepository;
+    private final ObjectMapper objectMapper;
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder binder)
@@ -221,11 +224,14 @@ public class SettingsController
      * @return
      */
     @GetMapping("/settings/tags")
-    public String updateTagForm (@CurrentUser Account account, Model model)
+    public String updateTagForm (@CurrentUser Account account, Model model) throws Exception
     {
         Set<Tag> tags = accountService.getTags(account);
 
+        List<String> collect = tagRepository.findAll().stream().map(tag -> tag.getTitle()).collect(Collectors.toList());
+
         model.addAttribute("account", account);
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(collect));
         model.addAttribute("tags", tags.stream().map(tag -> tag.getTitle()).collect(Collectors.toList()));
 
         return "settings/tags";
