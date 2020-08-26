@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -113,6 +114,9 @@ public class Account
      * 인증 메일 발송 일시
      */
     private LocalDateTime confirmMailSendDate;
+
+    @ManyToMany
+    private Set<Tag> tags;
 
     /**
      * 이메일 인증 토큰 생성 메서드

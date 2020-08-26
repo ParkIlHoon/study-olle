@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.domain.Tag;
 import com.studyolle.settings.NicknameForm;
 import com.studyolle.settings.Notifications;
 import com.studyolle.settings.PasswordForm;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <h1>Account 서비스 클래스</h1>
@@ -200,5 +202,16 @@ public class AccountService implements UserDetailsService
         account.setConfirmMailSendDate(LocalDateTime.now());
 
         accountRepository.save(account);
+    }
+
+    /**
+     * 사용자 태그 추가 메서드
+     * @param account
+     * @param tag
+     */
+    public void addTag(Account account, Tag tag)
+    {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent(a -> a.getTags().add(tag));
     }
 }

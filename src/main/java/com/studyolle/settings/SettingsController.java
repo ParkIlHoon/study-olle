@@ -3,19 +3,20 @@ package com.studyolle.settings;
 import com.studyolle.account.AccountService;
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
+import com.studyolle.domain.Tag;
+import com.studyolle.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 /**
  * <h1>사용자 설정 컨트롤러</h1>
@@ -28,6 +29,7 @@ public class SettingsController
     private final AccountService accountService;
     private final ModelMapper modelMapper;
     private final NicknameValidator nicknameValidator;
+    private final TagRepository tagRepository;
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder binder)
@@ -183,6 +185,15 @@ public class SettingsController
         return "settings/account";
     }
 
+    /**
+     * 닉네임 변경 요청 메서드
+     * @param account
+     * @param nicknameForm
+     * @param errors
+     * @param model
+     * @param attributes
+     * @return
+     */
     @PostMapping("/settings/account")
     public String updateNickname (@CurrentUser Account account,
                                   @Valid @ModelAttribute NicknameForm nicknameForm,
@@ -199,5 +210,32 @@ public class SettingsController
         accountService.updateNickname(account, nicknameForm);
         attributes.addFlashAttribute("message", "닉네임이 정상적으로 변경되었습니다.");
         return "redirect:/settings/account";
+    }
+
+
+    @GetMapping("/settings/tags")
+    public String updateTagForm (@CurrentUser Account account, Model model)
+    {
+        model.addAttribute("account", account);
+        model.addAttribute("");
+
+        return "settings/tags";
+    }
+
+    @PostMapping("/settings/tags/add")
+    @ResponseBody
+    public ResponseEntity updateTag (@CurrentUser Account account, @RequestBody TagForm tagForm)
+    {
+        String title = tagForm.getTagTitle();
+
+        Tag tag = tagRepository.findByTitle(title);
+
+        if(tag == null)
+        {
+            tag = tagRepository.save(Tag.builder().title(title).build());
+        }
+
+        accountService.addTag(account, tag);
+        return ResponseEntity.ok().build();
     }
 }
