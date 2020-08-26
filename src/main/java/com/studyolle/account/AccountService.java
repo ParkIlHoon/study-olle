@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * <h1>Account 서비스 클래스</h1>
@@ -213,5 +214,16 @@ public class AccountService implements UserDetailsService
     {
         Optional<Account> byId = accountRepository.findById(account.getId());
         byId.ifPresent(a -> a.getTags().add(tag));
+    }
+
+    /**
+     * 사용자 태그 조회 메서드
+     * @param account
+     * @return
+     */
+    public Set<Tag> getTags(Account account)
+    {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        return byId.orElseThrow().getTags();
     }
 }

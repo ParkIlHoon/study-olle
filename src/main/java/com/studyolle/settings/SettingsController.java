@@ -17,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <h1>사용자 설정 컨트롤러</h1>
@@ -212,16 +214,29 @@ public class SettingsController
         return "redirect:/settings/account";
     }
 
-
+    /**
+     * 태그 폼 요청 메서드
+     * @param account
+     * @param model
+     * @return
+     */
     @GetMapping("/settings/tags")
     public String updateTagForm (@CurrentUser Account account, Model model)
     {
+        Set<Tag> tags = accountService.getTags(account);
+
         model.addAttribute("account", account);
-        model.addAttribute("");
+        model.addAttribute("tags", tags.stream().map(tag -> tag.getTitle()).collect(Collectors.toList()));
 
         return "settings/tags";
     }
 
+    /**
+     * 태그 입력 요청 메서드
+     * @param account
+     * @param tagForm
+     * @return
+     */
     @PostMapping("/settings/tags/add")
     @ResponseBody
     public ResponseEntity updateTag (@CurrentUser Account account, @RequestBody TagForm tagForm)
