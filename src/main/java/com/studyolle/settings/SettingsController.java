@@ -5,7 +5,9 @@ import com.studyolle.account.AccountService;
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Tag;
+import com.studyolle.domain.Zone;
 import com.studyolle.tag.TagRepository;
+import com.studyolle.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,7 @@ public class SettingsController
     private final NicknameValidator nicknameValidator;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
+    private final ZoneRepository zoneRepository;
 
     @InitBinder("passwordForm")
     public void initBinder(WebDataBinder binder)
@@ -280,6 +283,73 @@ public class SettingsController
         }
 
         accountService.removeTag(account, tag);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 지역 폼 요청 메서드
+     * @param account
+     * @param model
+     * @return
+     */
+    @GetMapping("/settings/zones")
+    public String updateZoneForm (@CurrentUser Account account, Model model) throws Exception
+    {
+        Set<Zone> zones = accountService.getZones(account);
+
+        List<String> collect = zoneRepository.findAll().stream().map(zone -> zone.toString()).collect(Collectors.toList());
+
+        model.addAttribute("account", account);
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(collect));
+        model.addAttribute("tags", zones.stream().map(zone -> zone.toString()).collect(Collectors.toList()));
+
+        return "settings/zones";
+    }
+
+    /**
+     * 지역 입력 요청 메서드
+     * @param account
+     * @param zoneForm
+     * @return
+     */
+    @PostMapping("/settings/zones/add")
+    @ResponseBody
+    public ResponseEntity addZone (@CurrentUser Account account, @RequestBody ZoneForm zoneForm)
+    {
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+
+        if(zone == null)
+        {
+            zone = zoneRepository.save(Zone.builder()
+                                            .City(zoneForm.getCityName())
+                                            .LocalNameOfCity(zoneForm.getLocalNameOfCity())
+                                            .province(zoneForm.getProvinceName())
+                                            .build());
+        }
+
+        accountService.addZone(account, zone);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 지역 삭제 요청 메서드
+     * @param account
+     * @param zoneForm
+     * @return
+     */
+    @PostMapping("/settings/zones/remove")
+    @ResponseBody
+    public ResponseEntity removeZone (@CurrentUser Account account, @RequestBody ZoneForm zoneForm)
+    {
+
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+
+        if(zone == null)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeZone(account, zone);
         return ResponseEntity.ok().build();
     }
 }

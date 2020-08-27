@@ -2,6 +2,7 @@ package com.studyolle.account;
 
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Tag;
+import com.studyolle.domain.Zone;
 import com.studyolle.settings.NicknameForm;
 import com.studyolle.settings.Notifications;
 import com.studyolle.settings.PasswordForm;
@@ -227,5 +228,38 @@ public class AccountService implements UserDetailsService
     {
         Optional<Account> byId = accountRepository.findById(account.getId());
         byId.orElseThrow().getTags().remove(tag);
+    }
+
+    /**
+     * 사용자 지역 조회 메서드
+     * @param account
+     * @return
+     */
+    public Set<Zone> getZones(Account account)
+    {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        return byId.orElseThrow().getZones();
+    }
+
+    /**
+     * 사용자 지역 추가 메서드
+     * @param account
+     * @param zone
+     */
+    public void addZone(Account account, Zone zone)
+    {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent(a -> a.getZones().add(zone));
+    }
+
+    /**
+     * 사용자 지역 제거 메서드
+     * @param account
+     * @param zone
+     */
+    public void removeZone(Account account, Zone zone)
+    {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.orElseThrow().getZones().remove(zone);
     }
 }

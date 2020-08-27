@@ -119,6 +119,9 @@ public class Account
     @ManyToMany
     private Set<Tag> tags = new HashSet<>();
 
+    @ManyToMany
+    private Set<Zone> zones = new HashSet<>();
+
     /**
      * 이메일 인증 토큰 생성 메서드
      */

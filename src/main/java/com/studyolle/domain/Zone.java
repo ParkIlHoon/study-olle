@@ -24,4 +24,9 @@ public class Zone
 
     @Column(nullable = true)
     private String province;
+
+    @Override
+    public String toString() {
+        return City + "(" + LocalNameOfCity + ")" + province;
+    }
 }
