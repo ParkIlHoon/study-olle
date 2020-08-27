@@ -47,17 +47,8 @@ public class AccountService implements UserDetailsService
      */
     public Account joinAccount (SignUpForm signUpForm)
     {
-        // 객체 생성
-        Account account = Account.builder()
-                                    .nickname(signUpForm.getNickname())
-                                    .email(signUpForm.getEmail())
-                                    //패스워드 encoding
-                                    .password(passwordEncoder.encode(signUpForm.getPassword()))
-                                    .emailVerified(false)
-                                    .studyCreatedByWeb(true)
-                                    .studyEnrollmentResultByWeb(true)
-                                    .studyUpdatedByWeb(true)
-                                .build();
+        signUpForm.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
+        Account account = modelMapper.map(signUpForm, Account.class);
 
         // 저장
         Account newAccount = accountRepository.save(account);

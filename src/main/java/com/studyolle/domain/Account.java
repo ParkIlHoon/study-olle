@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -88,7 +89,7 @@ public class Account
     /**
      * 스터디 생성 웹 알림 여부
      */
-    private boolean studyCreatedByWeb;
+    private boolean studyCreatedByWeb = true;
 
     /**
      * 스터디 신청결과 이메일 알림 여부
@@ -98,7 +99,7 @@ public class Account
     /**
      * 스터디 신청경과 웹 알림 여부
      */
-    private boolean studyEnrollmentResultByWeb;
+    private boolean studyEnrollmentResultByWeb = true;
 
     /**
      * 스터디 업데이트 시 이메일 알림 여부
@@ -108,7 +109,7 @@ public class Account
     /**
      * 스터디 업데이트 시 웹 알림 여부
      */
-    private boolean studyUpdatedByWeb;
+    private boolean studyUpdatedByWeb = true;
 
     /**
      * 인증 메일 발송 일시
@@ -116,7 +117,7 @@ public class Account
     private LocalDateTime confirmMailSendDate;
 
     @ManyToMany
-    private Set<Tag> tags;
+    private Set<Tag> tags = new HashSet<>();
 
     /**
      * 이메일 인증 토큰 생성 메서드
