@@ -26,8 +26,8 @@ public class ZoneForm
     public Zone getZone()
     {
         return Zone.builder()
-                        .City(getCityName())
-                        .LocalNameOfCity(getLocalNameOfCity())
+                        .city(getCityName())
+                        .localNameOfCity(getLocalNameOfCity())
                         .province(getProvinceName())
                     .build();
     }

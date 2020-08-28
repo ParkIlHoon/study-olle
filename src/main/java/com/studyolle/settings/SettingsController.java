@@ -296,12 +296,11 @@ public class SettingsController
     public String updateZoneForm (@CurrentUser Account account, Model model) throws Exception
     {
         Set<Zone> zones = accountService.getZones(account);
-
         List<String> collect = zoneRepository.findAll().stream().map(zone -> zone.toString()).collect(Collectors.toList());
 
         model.addAttribute("account", account);
         model.addAttribute("whitelist", objectMapper.writeValueAsString(collect));
-        model.addAttribute("tags", zones.stream().map(zone -> zone.toString()).collect(Collectors.toList()));
+        model.addAttribute("zones", zones.stream().map(Zone::toString).collect(Collectors.toList()));
 
         return "settings/zones";
     }
@@ -318,13 +317,9 @@ public class SettingsController
     {
         Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
 
-        if(zone == null)
+        if (zone == null)
         {
-            zone = zoneRepository.save(Zone.builder()
-                                            .City(zoneForm.getCityName())
-                                            .LocalNameOfCity(zoneForm.getLocalNameOfCity())
-                                            .province(zoneForm.getProvinceName())
-                                            .build());
+            return ResponseEntity.badRequest().build();
         }
 
         accountService.addZone(account, zone);

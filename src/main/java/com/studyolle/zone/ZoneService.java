@@ -33,7 +33,7 @@ public class ZoneService
                                         .stream()
                                         .map(line -> {
                                                 String[] split = line.split(",");
-                                                return Zone.builder().City(split[0]).LocalNameOfCity(split[1]).province(split[2]).build();
+                                                return Zone.builder().city(split[0]).localNameOfCity(split[1]).province(split[2]).build();
                                             })
                                         .collect(Collectors.toList());
 
