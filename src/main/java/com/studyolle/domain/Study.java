@@ -1,5 +1,6 @@
 package com.studyolle.domain;
 
+import com.studyolle.account.UserAccount;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,6 +14,12 @@ import java.util.Set;
 @Getter @Setter
 @EqualsAndHashCode(of = "id")
 @Builder @AllArgsConstructor @NoArgsConstructor
+@NamedEntityGraph(name = "Study.withAll", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones"),
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("members")
+})
 public class Study
 {
     @Id @GeneratedValue
@@ -49,11 +56,11 @@ public class Study
 
     private LocalDateTime recruitingUpdatedDateTime;
 
-    private boolean recruiting;
+    private boolean recruiting = false;
 
-    private boolean published;
+    private boolean published = false;
 
-    private boolean closed;
+    private boolean closed = false;
 
     private boolean useBanner;
 
@@ -65,5 +72,20 @@ public class Study
     public String getEncodePath()
     {
         return URLEncoder.encode(this.path, StandardCharsets.UTF_8);
+    }
+
+    public boolean isJoinable(UserAccount account)
+    {
+        return (published && recruiting && !closed) && !members.contains(account.getAccount()) && !managers.contains(account.getAccount());
+    }
+
+    public boolean isManager(UserAccount account)
+    {
+        return managers.contains(account.getAccount());
+    }
+
+    public boolean isMember(UserAccount account)
+    {
+        return members.contains(account.getAccount());
     }
 }
