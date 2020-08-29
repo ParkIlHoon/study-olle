@@ -87,4 +87,22 @@ public class StudyController
 
         return "study/view";
     }
+
+    /**
+     * 스터디 멤버 조회 요청 메서드
+     * @param account
+     * @param path
+     * @param model
+     * @return
+     */
+    @GetMapping("/study/{path}/members")
+    public String viewMembers(@CurrentUser Account account, @PathVariable String path, Model model)
+    {
+        Study byPath = studyRepository.findByPath(path);
+
+        model.addAttribute("account", account);
+        model.addAttribute("study", byPath);
+
+        return "study/members";
+    }
 }
