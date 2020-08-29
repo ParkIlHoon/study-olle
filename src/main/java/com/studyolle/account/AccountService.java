@@ -1,5 +1,6 @@
 package com.studyolle.account;
 
+import com.studyolle.config.AppProperties;
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Tag;
 import com.studyolle.domain.Zone;
@@ -11,6 +12,7 @@ import com.studyolle.utils.EmailMessage;
 import com.studyolle.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -21,6 +23,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,6 +43,8 @@ public class AccountService implements UserDetailsService
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final TemplateEngine templateEngine;
+    private final AppProperties appProperties;
 
     /**
      * 회원 가입
@@ -68,11 +74,19 @@ public class AccountService implements UserDetailsService
      */
     public void sendSignUpConfirmEmail(Account account)
     {
+        Context context = new Context();
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("linkName", "이메일 인증하기");
+        context.setVariable("link", "/check-email-token?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        context.setVariable("message", "스터디올래 서비스를 이용하시려면 링크를 클릭하세요.");
+        context.setVariable("host", appProperties.getHost());
+
+        String process = templateEngine.process("mail/simple-link", context);
+
         EmailMessage message = EmailMessage.builder()
                                                 .subject("[StudyOlle] 회원 가입 인증")
                                                 .to(account.getEmail())
-                                                .message("/check-email-token?token=" + account.getEmailCheckToken()
-                                                        + "&email=" + account.getEmail())
+                                                .message(process)
                                             .build();
 
         emailService.sendEmail(message);
@@ -184,11 +198,19 @@ public class AccountService implements UserDetailsService
      */
     public void sendLoginLink(Account account)
     {
+        Context context = new Context();
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("linkName", "이메일 로그인");
+        context.setVariable("link", "/login-by-email?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
+        context.setVariable("message", "스터디올래에 이메일로 로그인하시려면 링크를 클릭하세요.");
+        context.setVariable("host", appProperties.getHost());
+
+        String process = templateEngine.process("mail/simple-link", context);
+
         EmailMessage message = EmailMessage.builder()
                                                 .subject("[StudyOlle] 이메일 로그인 링크")
                                                 .to(account.getEmail())
-                                                .message("/login-by-email?token=" + account.getEmailCheckToken()
-                                                        + "&email=" + account.getEmail())
+                                                .message(process)
                                             .build();
 
         emailService.sendEmail(message);

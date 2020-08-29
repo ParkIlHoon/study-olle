@@ -37,7 +37,7 @@ public class SmtpMailService implements EmailService
             helper.setTo(emailMessage.getTo());
             helper.setFrom(sender);
             helper.setSubject(emailMessage.getSubject());
-            helper.setText(emailMessage.getMessage(), false);
+            helper.setText(emailMessage.getMessage(), true);
 
             mailSender.send(mimeMessage);
         }
