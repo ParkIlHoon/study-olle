@@ -7,11 +7,10 @@ import com.studyolle.settings.NicknameForm;
 import com.studyolle.settings.Notifications;
 import com.studyolle.settings.PasswordForm;
 import com.studyolle.settings.Profile;
+import com.studyolle.utils.EmailMessage;
+import com.studyolle.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.NameTokenizers;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -37,7 +36,7 @@ import java.util.Set;
 public class AccountService implements UserDetailsService
 {
     private final AccountRepository accountRepository;
-    private final MailSender mailSender;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -69,13 +68,14 @@ public class AccountService implements UserDetailsService
      */
     public void sendSignUpConfirmEmail(Account account)
     {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(account.getEmail());
-        mailMessage.setSubject("[StudyOlle] 회원 가입 인증");
-        mailMessage.setText("/check-email-token?token=" + account.getEmailCheckToken()
-                                            + "&email=" + account.getEmail());
+        EmailMessage message = EmailMessage.builder()
+                                                .subject("[StudyOlle] 회원 가입 인증")
+                                                .to(account.getEmail())
+                                                .message("/check-email-token?token=" + account.getEmailCheckToken()
+                                                        + "&email=" + account.getEmail())
+                                            .build();
 
-        mailSender.send(mailMessage);
+        emailService.sendEmail(message);
 
         account.setConfirmMailSendDate(LocalDateTime.now());
     }
@@ -184,13 +184,14 @@ public class AccountService implements UserDetailsService
      */
     public void sendLoginLink(Account account)
     {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(account.getEmail());
-        mailMessage.setSubject("[StudyOlle] 이메일 로그인 링크");
-        mailMessage.setText("/login-by-email?token=" + account.getEmailCheckToken()
-                                         + "&email=" + account.getEmail());
+        EmailMessage message = EmailMessage.builder()
+                                                .subject("[StudyOlle] 이메일 로그인 링크")
+                                                .to(account.getEmail())
+                                                .message("/login-by-email?token=" + account.getEmailCheckToken()
+                                                        + "&email=" + account.getEmail())
+                                            .build();
 
-        mailSender.send(mailMessage);
+        emailService.sendEmail(message);
 
         account.setConfirmMailSendDate(LocalDateTime.now());
 

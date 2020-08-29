@@ -1,15 +1,14 @@
 package com.studyolle.account;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyolle.domain.Account;
+import com.studyolle.utils.EmailMessage;
+import com.studyolle.utils.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,7 @@ class AccountControllerTest
     private AccountRepository accountRepository;
 
     @MockBean
-    private MailSender mailSender;
+    private EmailService mailSender;
 
     @Test
     @DisplayName("회원 가입 화면이 보이는지 테스트")
@@ -91,7 +90,7 @@ class AccountControllerTest
         assertNotNull(account.getEmailCheckToken());
         assertNotEquals(account.getPassword(), "12345678");
         // 메일은 발송 되었는지
-        then(mailSender).should().send(any(SimpleMailMessage.class));
+        then(mailSender).should().sendEmail(any(EmailMessage.class));
     }
 
     @Test
