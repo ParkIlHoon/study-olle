@@ -3,6 +3,8 @@ package com.studyolle.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,4 +56,14 @@ public class Study
     private boolean closed;
 
     private boolean useBanner;
+
+    public void addManager(Account account)
+    {
+        this.managers.add(account);
+    }
+
+    public String getEncodePath()
+    {
+        return URLEncoder.encode(this.path, StandardCharsets.UTF_8);
+    }
 }
