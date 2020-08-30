@@ -102,6 +102,7 @@ public class Study
 
     public void publish()
     {
+        this.closed = false;
         this.published = true;
         this.publishedDateTime = LocalDateTime.now();
     }
@@ -109,7 +110,7 @@ public class Study
     public void close()
     {
         this.closed = true;
-        this.recruiting = false;
+        this.published = false;
         this.closedDateTime = LocalDateTime.now();
     }
 
@@ -132,6 +133,6 @@ public class Study
 
     public boolean isRemovable()
     {
-        return this.closed;
+        return !this.published;
     }
 }

@@ -274,4 +274,20 @@ public class StudyService
     {
         study.setTitle(newTitle);
     }
+
+    /**
+     * 스터디 삭제 메서드
+     * @param study
+     */
+    public void removeStudy(Study study)
+    {
+        if (study.isRemovable())
+        {
+            studyRepository.delete(study);
+        }
+        else
+        {
+            throw new IllegalArgumentException("스터디를 삭제할 수 없습니다.");
+        }
+    }
 }

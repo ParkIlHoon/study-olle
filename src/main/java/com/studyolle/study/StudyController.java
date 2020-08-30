@@ -571,5 +571,17 @@ public class StudyController
         return "redirect:/study/" + study.getEncodePath() + "/settings/study";
     }
 
-
+    /**
+     * 스터디 삭제 요청 메서드
+     * @param account
+     * @param path
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/study/remove")
+    public String removeStudy(@CurrentUser Account account, @PathVariable String path)
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+        studyService.removeStudy(study);
+        return "redirect:/";
+    }
 }
