@@ -28,6 +28,9 @@ import java.util.Set;
         @NamedAttributeNode("zones"),
         @NamedAttributeNode("managers")
 })
+@NamedEntityGraph(name = "Study.only", attributeNodes = {
+        @NamedAttributeNode("managers")
+})
 public class Study
 {
     @Id @GeneratedValue
@@ -70,7 +73,7 @@ public class Study
 
     private boolean closed = false;
 
-    private boolean useBanner;
+    private boolean useBanner = false;
 
     public void addManager(Account account)
     {
@@ -95,5 +98,40 @@ public class Study
     public boolean isMember(UserAccount account)
     {
         return members.contains(account.getAccount());
+    }
+
+    public void publish()
+    {
+        this.published = true;
+        this.publishedDateTime = LocalDateTime.now();
+    }
+
+    public void close()
+    {
+        this.closed = true;
+        this.recruiting = false;
+        this.closedDateTime = LocalDateTime.now();
+    }
+
+    public boolean isRecruitUpdatable()
+    {
+        return this.recruitingUpdatedDateTime == null || LocalDateTime.now().isAfter(this.recruitingUpdatedDateTime.plusHours(1));
+    }
+
+    public void startRecruiting()
+    {
+        this.recruiting = true;
+        this.recruitingUpdatedDateTime = LocalDateTime.now();
+    }
+
+    public void stopRecruiting()
+    {
+        this.recruiting = false;
+        this.recruitingUpdatedDateTime = LocalDateTime.now();
+    }
+
+    public boolean isRemovable()
+    {
+        return this.closed;
     }
 }

@@ -181,4 +181,56 @@ public class StudyService
 
         return byPath;
     }
+
+    /**
+     * 스터디 상태 수정을 위한 스터디 조회 메서드
+     * @param account
+     * @param path
+     * @return
+     */
+    public Study getStudyForUpdateSelf(Account account, String path)
+    {
+        Study byPath = studyRepository.findAccountOnlyByPath(path);
+
+        checkExists(path, byPath);
+        checkIsManager(account, byPath);
+
+        return byPath;
+    }
+
+    /**
+     * 스터디 공개 메서드
+     * @param study
+     */
+    public void publishStudy(Study study)
+    {
+        study.publish();
+    }
+
+    /**
+     * 스터디 종료 메서드
+     * @param study
+     */
+    public void closeStudy(Study study)
+    {
+        study.close();
+    }
+
+    /**
+     * 스터디 팀원 모집 시작 메서드
+     * @param study
+     */
+    public void startRecruiting(Study study)
+    {
+        study.startRecruiting();
+    }
+
+    /**
+     * 스터디 팀원 모집 종료 메서드
+     * @param study
+     */
+    public void stopRecruiting(Study study)
+    {
+        study.stopRecruiting();
+    }
 }
