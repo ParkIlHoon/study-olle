@@ -10,9 +10,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.Set;
-
 /**
  * <h1>Study 서비스 클래스</h1>
  */
@@ -232,5 +229,49 @@ public class StudyService
     public void stopRecruiting(Study study)
     {
         study.stopRecruiting();
+    }
+
+    /**
+     * 스터디 새 경로 유효성 검증 메서드
+     * @param path
+     * @return
+     */
+    public boolean isValidPath(String path)
+    {
+        if(path.matches(StudyForm.VALID_PATH_PATTERN))
+        {
+            return !studyRepository.existsByPath(path);
+        }
+        return false;
+    }
+
+    /**
+     * 스터디 경로 변경 메서드
+     * @param study
+     * @param newPath
+     */
+    public void updateStudyPath(Study study, String newPath)
+    {
+        study.setPath(newPath);
+    }
+
+    /**
+     * 스터디 새 이름 유효성 검증 메서드
+     * @param title
+     * @return
+     */
+    public boolean isValidTitle(String title)
+    {
+        return title.length() <= 50;
+    }
+
+    /**
+     * 스터디 이름 변경 메서드
+     * @param study
+     * @param newTitle
+     */
+    public void updateStudyTitle(Study study, String newTitle)
+    {
+        study.setTitle(newTitle);
     }
 }

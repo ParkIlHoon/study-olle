@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -504,4 +506,70 @@ public class StudyController
         attributes.addFlashAttribute("message", "이제 스터디 팀원 모집을 종료합니다.");
         return "redirect:/study/" + study.getEncodePath() + "/settings/study";
     }
+
+    /**
+     * 스터디 경로 변경 요청 메서드
+     * @param account
+     * @param path
+     * @param newPath
+     * @param model
+     * @param attributes
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @PostMapping("/study/{path}/settings/study/path")
+    public String updateStudyPath(@CurrentUser Account account,
+                                  @PathVariable String path,
+                                  String newPath,
+                                  Model model,
+                                  RedirectAttributes attributes) throws UnsupportedEncodingException
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+
+        if (!studyService.isValidPath(newPath))
+        {
+            model.addAttribute("account", account);
+            model.addAttribute("study", study);
+            model.addAttribute("studyPathError", "이미 존재하거나 유효하지 않은 스터디 경로입니다.");
+            return "study/settings/study";
+        }
+
+        studyService.updateStudyPath(study, newPath);
+        attributes.addFlashAttribute("message", "스터디 경로를 변경했습니다.");
+        return "redirect:/study/" + URLEncoder.encode(newPath, "UTF-8") + "/settings/study";
+    }
+
+    /**
+     * 스터디 이름 변경 요청 메서드
+     * @param account
+     * @param path
+     * @param newTitle
+     * @param model
+     * @param attributes
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @PostMapping("/study/{path}/settings/study/title")
+    public String updateStudyTitle(@CurrentUser Account account,
+                                  @PathVariable String path,
+                                  String newTitle,
+                                  Model model,
+                                  RedirectAttributes attributes) throws UnsupportedEncodingException
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+
+        if (!studyService.isValidTitle(newTitle))
+        {
+            model.addAttribute("account", account);
+            model.addAttribute("study", study);
+            model.addAttribute("studyTitleError", "유효하지 않은 스터디 이름입니다.");
+            return "study/settings/study";
+        }
+
+        studyService.updateStudyTitle(study, newTitle);
+        attributes.addFlashAttribute("message", "스터디 이름을 변경했습니다.");
+        return "redirect:/study/" + study.getEncodePath() + "/settings/study";
+    }
+
+
 }
