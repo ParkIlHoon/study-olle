@@ -76,4 +76,24 @@ public class StudyService
     {
         modelMapper.map(studyDescriptionForm, study);
     }
+
+    /**
+     * 스터디 배너 사용여부 수정 메서드
+     * @param study
+     * @param enable
+     */
+    public void updateStudyBannerEnable(Study study, boolean enable)
+    {
+        study.setUseBanner(enable);
+    }
+
+    /**
+     * 스터디 배너 변경 메서드
+     * @param study
+     * @param image
+     */
+    public void updateStudyBanner(Study study, String image)
+    {
+        study.setImage(image);
+    }
 }

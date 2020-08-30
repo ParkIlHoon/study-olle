@@ -160,4 +160,89 @@ public class StudyController
         attributes.addFlashAttribute("message", "스터디 소개를 수정했습니다.");
         return "redirect:/study/" + study.getEncodePath() + "/settings/description";
     }
+
+    /**
+     * 배너 이미지 수정 폼 요청
+     * @param account
+     * @param path
+     * @param model
+     * @return
+     */
+    @GetMapping("/study/{path}/settings/banner")
+    public String updateBannerForm(@CurrentUser Account account, @PathVariable String path, Model model)
+    {
+        Study byPath = studyService.getStudy(path);
+        model.addAttribute("account", account);
+        model.addAttribute("study", byPath);
+
+        return "study/settings/banner";
+    }
+
+    /**
+     * 스터디 배너 사용여부 변경 요청 메서드
+     * @param account
+     * @param path
+     * @param model
+     * @param attributes
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/banner/enable")
+    public String updateBannerEnable(@CurrentUser Account account,
+                                     @PathVariable String path,
+                                     Model model,
+                                     RedirectAttributes attributes)
+    {
+        Study study = studyService.getStudyForUpdate(account, path);
+
+        studyService.updateStudyBannerEnable(study, true);
+
+        attributes.addFlashAttribute("message", "이제 스터디 배너를 사용합니다.");
+        return "redirect:/study/" + study.getEncodePath() + "/settings/banner";
+    }
+
+    /**
+     * 스터디 배너 사용여부 변경 요청 메서드
+     * @param account
+     * @param path
+     * @param model
+     * @param attributes
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/banner/disable")
+    public String updateBannerDisable(@CurrentUser Account account,
+                                     @PathVariable String path,
+                                     Model model,
+                                     RedirectAttributes attributes)
+    {
+        Study study = studyService.getStudyForUpdate(account, path);
+
+        studyService.updateStudyBannerEnable(study, false);
+
+        attributes.addFlashAttribute("message", "이제 스터디 배너를 사용하지 않습니다.");
+        return "redirect:/study/" + study.getEncodePath() + "/settings/banner";
+    }
+
+    /**
+     * 스터디 배너 변경 요청 메서드
+     * @param account
+     * @param path
+     * @param image
+     * @param model
+     * @param attributes
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/banner")
+    public String updateBanner(@CurrentUser Account account,
+                               @PathVariable String path,
+                               String image,
+                               Model model,
+                               RedirectAttributes attributes)
+    {
+        Study study = studyService.getStudyForUpdate(account, path);
+
+        studyService.updateStudyBanner(study, image);
+
+        attributes.addFlashAttribute("message", "스터디 배너를 수정했습니다.");
+        return "redirect:/study/" + study.getEncodePath() + "/settings/banner";
+    }
 }
