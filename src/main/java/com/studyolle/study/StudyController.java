@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -80,7 +81,7 @@ public class StudyController
     @GetMapping("/study/{path}")
     public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model)
     {
-        Study byPath = studyRepository.findByPath(path);
+        Study byPath = studyService.getStudy(path);
 
         model.addAttribute("account", account);
         model.addAttribute("study", byPath);
@@ -98,11 +99,65 @@ public class StudyController
     @GetMapping("/study/{path}/members")
     public String viewMembers(@CurrentUser Account account, @PathVariable String path, Model model)
     {
-        Study byPath = studyRepository.findByPath(path);
+        Study byPath = studyService.getStudy(path);
 
         model.addAttribute("account", account);
         model.addAttribute("study", byPath);
 
         return "study/members";
+    }
+
+    /**
+     * 스터디 소개 수정 폼 요청 메서드
+     * @param account
+     * @param path
+     * @param model
+     * @return
+     */
+    @GetMapping("/study/{path}/settings/description")
+    public String updateDescriptionForm(@CurrentUser Account account, @PathVariable String path, Model model)
+    {
+        Study byPath = studyService.getStudy(path);
+        StudyDescriptionForm form  = StudyDescriptionForm.builder()
+                                                            .fullDescription(byPath.getFullDescription())
+                                                            .shortDescription(byPath.getShortDescription())
+                                                        .build();
+
+        model.addAttribute("account", account);
+        model.addAttribute("study", byPath);
+        model.addAttribute("studyDescriptionForm", form);
+
+        return "study/settings/description";
+    }
+
+    /**
+     * 스터디 소개 수정 요청 메서드
+     * @param account
+     * @param path
+     * @param studyDescriptionForm
+     * @param errors
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/description")
+    public String updateDescription(@CurrentUser Account account,
+                                    @PathVariable String path,
+                                    @Valid @ModelAttribute StudyDescriptionForm studyDescriptionForm,
+                                    Errors errors,
+                                    Model model,
+                                    RedirectAttributes attributes)
+    {
+        Study study = studyService.getStudyForUpdate(account, path);
+
+        if(errors.hasErrors())
+        {
+            model.addAttribute("account", account);
+            model.addAttribute("study", study);
+            return "study/settings/description";
+        }
+
+        studyService.updateStudyDescription(study, studyDescriptionForm);
+
+        attributes.addFlashAttribute("message", "스터디 소개를 수정했습니다.");
+        return "redirect:/study/" + study.getEncodePath() + "/settings/description";
     }
 }

@@ -44,6 +44,7 @@ public class SmtpMailService implements EmailService
         catch (MessagingException e)
         {
             log.error("email send has failed", e);
+            throw new RuntimeException(e);
         }
     }
 }

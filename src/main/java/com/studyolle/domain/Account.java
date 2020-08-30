@@ -157,4 +157,14 @@ public class Account
     {
         return LocalDateTime.now().isAfter(confirmMailSendDate.plusHours(1));
     }
+
+    /**
+     * 스터디 관리자 여부 확인 메서드
+     * @param study
+     * @return
+     */
+    public boolean isManagerOf(Study study)
+    {
+        return study.getManagers().contains(this);
+    }
 }
