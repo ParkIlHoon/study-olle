@@ -1,10 +1,19 @@
 package com.studyolle.study;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Study;
+import com.studyolle.domain.Tag;
+import com.studyolle.domain.Zone;
+import com.studyolle.settings.TagForm;
+import com.studyolle.settings.ZoneForm;
+import com.studyolle.tag.TagRepository;
+import com.studyolle.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -13,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <h1>스터디 컨트롤러</h1>
@@ -24,7 +35,10 @@ public class StudyController
     private final StudyFormValidator studyFormValidator;
     private final StudyService studyService;
     private final StudyRepository studyRepository;
+    private final TagRepository tagRepository;
+    private final ZoneRepository zoneRepository;
     private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper;
 
     @InitBinder("studyForm")
     void initBind(WebDataBinder binder)
@@ -244,5 +258,139 @@ public class StudyController
 
         attributes.addFlashAttribute("message", "스터디 배너를 수정했습니다.");
         return "redirect:/study/" + study.getEncodePath() + "/settings/banner";
+    }
+
+    /**
+     * 스터디 태그 폼 요청
+     * @param account
+     * @param path
+     * @param model
+     * @return
+     * @throws JsonProcessingException
+     */
+    @GetMapping("/study/{path}/settings/tags")
+    public String updateTagForm(@CurrentUser Account account, @PathVariable String path, Model model) throws JsonProcessingException
+    {
+        Study study = studyService.getStudyForUpdate(account, path);
+        List<String> collect = tagRepository.findAll().stream().map(tag -> tag.getTitle()).collect(Collectors.toList());
+
+        model.addAttribute("account", account);
+        model.addAttribute("study", study);
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(collect));
+        model.addAttribute("tags", study.getTags().stream().map(tag -> tag.getTitle()).collect(Collectors.toList()));
+
+        return "study/settings/tags";
+    }
+
+    /**
+     * 태그 입력 요청 메서드
+     * @param account
+     * @param tagForm
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/tags/add")
+    @ResponseBody
+    public ResponseEntity addTag (@CurrentUser Account account, @PathVariable String path, @RequestBody TagForm tagForm)
+    {
+        Study study = studyService.getStudyForUpdateTags(account, path);
+        String title = tagForm.getTagTitle();
+
+        Tag tag = tagRepository.findByTitle(title);
+
+        if(tag == null)
+        {
+            tag = tagRepository.save(Tag.builder().title(title).build());
+        }
+
+        studyService.addTag(study, tag);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 태그 삭제 요청 메서드
+     * @param account
+     * @param tagForm
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/tags/remove")
+    @ResponseBody
+    public ResponseEntity removeTag (@CurrentUser Account account, @PathVariable String path, @RequestBody TagForm tagForm)
+    {
+        Study study = studyService.getStudyForUpdateTags(account, path);
+        String title = tagForm.getTagTitle();
+
+        Tag tag = tagRepository.findByTitle(title);
+
+        if(tag == null)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        studyService.removeTag(study, tag);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 지역 폼 요청 메서드
+     * @param account
+     * @param model
+     * @return
+     */
+    @GetMapping("/study/{path}/settings/zones")
+    public String updateZoneForm (@CurrentUser Account account, @PathVariable String path, Model model) throws Exception
+    {
+        Study study = studyService.getStudyForUpdate(account, path);
+        List<String> collect = zoneRepository.findAll().stream().map(zone -> zone.toString()).collect(Collectors.toList());
+
+        model.addAttribute("account", account);
+        model.addAttribute("study", study);
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(collect));
+        model.addAttribute("zones", study.getZones().stream().map(Zone::toString).collect(Collectors.toList()));
+
+        return "study/settings/zones";
+    }
+
+    /**
+     * 지역 입력 요청 메서드
+     * @param account
+     * @param zoneForm
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/zones/add")
+    @ResponseBody
+    public ResponseEntity addZone (@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm)
+    {
+        Study study = studyService.getStudyForUpdateZones(account, path);
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+
+        if (zone == null)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        studyService.addZone(study, zone);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 지역 삭제 요청 메서드
+     * @param account
+     * @param zoneForm
+     * @return
+     */
+    @PostMapping("/study/{path}/settings/zones/remove")
+    @ResponseBody
+    public ResponseEntity removeZone (@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm)
+    {
+        Study study = studyService.getStudyForUpdateZones(account, path);
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+
+        if(zone == null)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        studyService.removeZone(study, zone);
+        return ResponseEntity.ok().build();
     }
 }
