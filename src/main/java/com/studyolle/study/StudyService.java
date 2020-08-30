@@ -155,7 +155,7 @@ public class StudyService
      */
     public Study getStudyForUpdateTags(Account account, String path)
     {
-        Study byPath = studyRepository.findAccountWithTagsByPath(path);
+        Study byPath = studyRepository.findStudyWithTagsByPath(path);
 
         checkExists(path, byPath);
         checkIsManager(account, byPath);
@@ -171,7 +171,7 @@ public class StudyService
      */
     public Study getStudyForUpdateZones(Account account, String path)
     {
-        Study byPath = studyRepository.findAccountWithZonesByPath(path);
+        Study byPath = studyRepository.findStudyWithZonesByPath(path);
 
         checkExists(path, byPath);
         checkIsManager(account, byPath);
@@ -187,7 +187,7 @@ public class StudyService
      */
     public Study getStudyForUpdateSelf(Account account, String path)
     {
-        Study byPath = studyRepository.findAccountOnlyByPath(path);
+        Study byPath = studyRepository.findStudyOnlyByPath(path);
 
         checkExists(path, byPath);
         checkIsManager(account, byPath);
@@ -289,5 +289,38 @@ public class StudyService
         {
             throw new IllegalArgumentException("스터디를 삭제할 수 없습니다.");
         }
+    }
+
+    /**
+     * 스터디 가입/탍퇴를 위한 스터디 조회 메서드
+     * @param account
+     * @param path
+     * @return
+     */
+    public Study getStudyForJoin(Account account, String path)
+    {
+        Study byPath = studyRepository.findStudyWithMembersAndManagersByPath(path);
+        checkExists(path, byPath);
+        return byPath;
+    }
+
+    /**
+     * 스터디 멤버 추가 메서드
+     * @param account
+     * @param study
+     */
+    public void addMember(Account account, Study study)
+    {
+        study.getMembers().add(account);
+    }
+
+    /**
+     * 스터디 멤버 제거 메서드
+     * @param account
+     * @param study
+     */
+    public void removeMember(Account account, Study study)
+    {
+        study.getMembers().remove(account);
     }
 }
