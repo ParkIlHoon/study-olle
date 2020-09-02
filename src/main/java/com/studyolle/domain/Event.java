@@ -11,6 +11,9 @@ import java.util.List;
 @Getter @Setter
 @EqualsAndHashCode(of = "id")
 @Builder @AllArgsConstructor @NoArgsConstructor
+@NamedEntityGraph(name = "Event.withEnrollment", attributeNodes = {
+        @NamedAttributeNode("enrollments")
+})
 public class Event
 {
     @Id @GeneratedValue
@@ -68,5 +71,10 @@ public class Event
     public boolean canAccept(Enrollment enrollment)
     {
         return false;
+    }
+
+    public int numberOfRemainSpots ()
+    {
+        return this.limitOfEnrollments - (int) enrollments.stream().filter(e -> e.isAccepted()).count();
     }
 }

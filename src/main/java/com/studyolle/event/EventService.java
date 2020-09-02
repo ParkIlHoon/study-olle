@@ -34,4 +34,5 @@ public class EventService
 
         return eventRepository.save(event);
     }
+
 }
