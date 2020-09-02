@@ -25,6 +25,7 @@ public class EventController
 {
     private final StudyService studyService;
     private final EventService eventService;
+    private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
     private final EventFormValidator eventFormValidator;
 
@@ -80,6 +81,22 @@ public class EventController
 
         Event event = eventService.createEvent(modelMapper.map(eventForm, Event.class), study, account);
         return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
+    }
+
+    @GetMapping("/events/{id}")
+    public String getEvent(@CurrentUser Account account,
+                           @PathVariable String path,
+                           @PathVariable Long id,
+                           Model model)
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Event event = eventRepository.findById(id).orElseThrow();
+
+        model.addAttribute("account", account);
+        model.addAttribute("study", study);
+        model.addAttribute("event", event);
+
+        return "event/view";
     }
 
 }

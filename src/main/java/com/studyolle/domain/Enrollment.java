@@ -20,9 +20,12 @@ public class Enrollment
     @ManyToOne
     private Event event;
 
+    @ManyToOne
+    private Account account;
+
     private LocalDateTime enrolledAt;
 
     private boolean accepted;
 
-    private boolean attend;
+    private boolean attended;
 }

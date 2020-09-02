@@ -1,6 +1,7 @@
 package com.studyolle.domain;
 
 import lombok.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class Event
     private Study study;
 
     @ManyToOne
-    private Account createBy;
+    private Account createdBy;
 
     @Column(nullable = false)
     private String title;
@@ -47,4 +48,25 @@ public class Event
 
     @Enumerated(value = EnumType.STRING)
     private EventType eventType;
+
+    public boolean isEnrollableFor(UserDetails account)
+    {
+        return false;
+    }
+    public boolean isDisenrollableFor(UserDetails account)
+    {
+        return false;
+    }
+    public boolean isAttended(UserDetails account)
+    {
+        return false;
+    }
+    public boolean canReject(Enrollment enrollment)
+    {
+        return false;
+    }
+    public boolean canAccept(Enrollment enrollment)
+    {
+        return false;
+    }
 }
