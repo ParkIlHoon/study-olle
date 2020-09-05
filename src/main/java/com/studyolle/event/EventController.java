@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -144,5 +145,68 @@ public class EventController
         model.addAttribute("newEvents", newEvents);
 
         return "study/events";
+    }
+
+    /**
+     * 모임 정보 수정 뷰 요청 메서드
+     * @param account
+     * @param path
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/events/{id}/edit")
+    public String updateEventForm (@CurrentUser Account account,
+                                   @PathVariable String path,
+                                   @PathVariable Long id,
+                                   Model model)
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Event event = eventRepository.findById(id).orElseThrow();
+
+        model.addAttribute("account", account);
+        model.addAttribute("study", study);
+        model.addAttribute("event", event);
+        model.addAttribute("eventForm", modelMapper.map(event, EventForm.class));
+
+        return "event/update-form";
+    }
+
+    /**
+     * 모임 정보 수정 요청 메서드
+     * @param account
+     * @param path
+     * @param id
+     * @param eventForm
+     * @param errors
+     * @param model
+     * @param attributes
+     * @return
+     */
+    @PostMapping("/events/{id}/edit")
+    public String updateEventSubmit(@CurrentUser Account account,
+                                    @PathVariable String path,
+                                    @PathVariable Long id,
+                                    @Valid @ModelAttribute EventForm eventForm,
+                                    Errors errors,
+                                    Model model,
+                                    RedirectAttributes attributes)
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Event event = eventRepository.findById(id).orElseThrow();
+        eventForm.setEventType(event.getEventType());
+
+        eventFormValidator.validateUpdateForm(eventForm, event, errors);
+
+        if (errors.hasErrors())
+        {
+            model.addAttribute("account", account);
+            model.addAttribute("study", study);
+            model.addAttribute("event", event);
+            return "event/update-form";
+        }
+
+        eventService.updateEvent(event, eventForm);
+        return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
     }
 }
