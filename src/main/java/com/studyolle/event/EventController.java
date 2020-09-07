@@ -6,6 +6,7 @@ import com.studyolle.domain.Event;
 import com.studyolle.domain.Study;
 import com.studyolle.study.StudyService;
 import lombok.RequiredArgsConstructor;
+import org.dom4j.rule.Mode;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -208,5 +209,24 @@ public class EventController
 
         eventService.updateEvent(event, eventForm);
         return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
+    }
+
+    /**
+     * 모임 취소 요청 메서드
+     * @param account
+     * @param path
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/events/{id}")
+    public String cancelEvent(@CurrentUser Account account,
+                              @PathVariable String path,
+                              @PathVariable Long id)
+    {
+        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Event event = eventRepository.findById(id).orElseThrow();
+
+        eventService.deleteEvent(event);
+        return "redirect:/study/" + study.getEncodePath() + "/events";
     }
 }
