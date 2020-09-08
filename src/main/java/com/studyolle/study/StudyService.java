@@ -187,7 +187,7 @@ public class StudyService
      */
     public Study getStudyForUpdateSelf(Account account, String path)
     {
-        Study byPath = studyRepository.findStudyOnlyByPath(path);
+        Study byPath = studyRepository.findStudyWithManagersByPath(path);
 
         checkExists(path, byPath);
         checkIsManager(account, byPath);
@@ -322,5 +322,17 @@ public class StudyService
     public void removeMember(Account account, Study study)
     {
         study.getMembers().remove(account);
+    }
+
+    /**
+     * 모임 참가신청을 위한 스터디 조회 메서드
+     * @param path
+     * @return
+     */
+    public Study getStudyForEnroll(String path)
+    {
+        Study study = studyRepository.findStudyOnlyByPath(path);
+        checkExists(path, study);
+        return study;
     }
 }

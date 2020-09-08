@@ -4,9 +4,9 @@ import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Event;
 import com.studyolle.domain.Study;
+import com.studyolle.study.StudyRepository;
 import com.studyolle.study.StudyService;
 import lombok.RequiredArgsConstructor;
-import org.dom4j.rule.Mode;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +29,7 @@ import java.util.List;
 public class EventController
 {
     private final StudyService studyService;
+    private final StudyRepository studyRepository;
     private final EventService eventService;
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
@@ -102,7 +103,7 @@ public class EventController
                            @PathVariable Long id,
                            Model model)
     {
-        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Study study = studyRepository.findStudyWithMembersAndManagersByPath(path);
         Event event = eventRepository.findById(id).orElseThrow();
 
         model.addAttribute("account", account);
@@ -122,7 +123,7 @@ public class EventController
     @GetMapping("/events")
     public String getEventList(@CurrentUser Account account, @PathVariable String path, Model model)
     {
-        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Study study = studyService.getStudy(path);
 
         List<Event> events = eventRepository.findByStudyOrderByStartDateTime(study);
 
@@ -223,10 +224,50 @@ public class EventController
                               @PathVariable String path,
                               @PathVariable Long id)
     {
-        Study study = studyService.getStudyForUpdateSelf(account, path);
+        Study study = studyService.getStudyForJoin(account, path);
         Event event = eventRepository.findById(id).orElseThrow();
 
         eventService.deleteEvent(event);
         return "redirect:/study/" + study.getEncodePath() + "/events";
+    }
+
+    /**
+     * 모임 참가신청 요청 메서드
+     * @param account
+     * @param path
+     * @param id
+     * @return
+     */
+    @PostMapping("/events/{id}/enroll")
+    public String enrollEvent(@CurrentUser Account account,
+                              @PathVariable String path,
+                              @PathVariable Long id)
+    {
+        Study study = studyService.getStudyForEnroll(path);
+        Event event = eventRepository.findById(id).orElseThrow();
+
+        eventService.enrollEvent(event, account);
+
+        return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
+    }
+
+    /**
+     * 모임 참가취소 요청 메서드
+     * @param account
+     * @param path
+     * @param id
+     * @return
+     */
+    @PostMapping("/events/{id}/disenroll")
+    public String disenrollEvent(@CurrentUser Account account,
+                                 @PathVariable String path,
+                                 @PathVariable Long id)
+    {
+        Study study = studyService.getStudyForEnroll(path);
+        Event event = eventRepository.findById(id).orElseThrow();
+
+        eventService.disenrollEvent(event, account);
+
+        return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
     }
 }

@@ -1,8 +1,10 @@
 package com.studyolle.event;
 
 import com.studyolle.domain.Account;
+import com.studyolle.domain.Enrollment;
 import com.studyolle.domain.Event;
 import com.studyolle.domain.Study;
+import com.studyolle.enrollment.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class EventService
 {
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
+    private final EnrollmentRepository enrollmentRepository;
 
     /**
      * 모임 신규 생성 메서드
@@ -56,5 +59,46 @@ public class EventService
     public void deleteEvent(Event event)
     {
         eventRepository.delete(event);
+    }
+
+    /**
+     * 모임 참가 신청 메서드
+     * @param event
+     * @param account
+     */
+    public void enrollEvent(Event event, Account account)
+    {
+        // 해당 모임에 사용자가 이미 추가되었는지 확인
+        boolean exists = enrollmentRepository.existsByEventAndAccount(event, account);
+
+        if (!exists)
+        {
+            Enrollment enrollment = Enrollment.builder()
+                                                    .account(account)
+                                                    .event(event)
+                                                    .accepted(event.isAbleToAcceptWaitingEnrollment())
+                                                    .attended(false)
+                                                    .enrolledAt(LocalDateTime.now())
+                                                .build();
+
+            event.addEnrollment(enrollment);
+            enrollmentRepository.save(enrollment);
+        }
+
+    }
+
+    /**
+     * 모임 참가 취소 메서드
+     * @param event
+     * @param account
+     */
+    public void disenrollEvent(Event event, Account account)
+    {
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account).orElseThrow();
+
+        event.removeEnrollment(enrollment);
+        enrollmentRepository.delete(enrollment);
+
+        event.acceptTheFirstWaitingEnrollment();
     }
 }
