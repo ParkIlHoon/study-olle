@@ -6,8 +6,11 @@ import com.studyolle.account.AccountFactory;
 import com.studyolle.account.AccountRepository;
 import com.studyolle.account.AccountService;
 import com.studyolle.domain.Account;
+import com.studyolle.domain.Event;
 import com.studyolle.domain.Study;
 import com.studyolle.study.StudyFactory;
+import com.studyolle.study.StudyRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -45,7 +50,24 @@ class EventControllerTest
     private AccountRepository accountRepository;
 
     @Autowired
+    private StudyRepository studyRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
     private StudyFactory studyFactory;
+
+    @Autowired
+    private EventFactory eventFactory;
+
+    @AfterEach
+    void resetAllDatas ()
+    {
+        eventRepository.deleteAll();
+        studyRepository.deleteAll();
+        accountRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("모임 생성")
@@ -67,5 +89,81 @@ class EventControllerTest
                         )
                 .andDo(print())
                 .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @DisplayName("모임 뷰")
+    @WithAccount(value = "1hoon")
+    void view_event() throws Exception
+    {
+        Account account = accountRepository.findByNickname("1hoon");
+        // 스터디 생성
+        Study study = studyFactory.createStudy("test-study", account);
+        // 이벤트 생성
+        Event event = eventFactory.createEvent(study, account);
+
+        mockMvc.perform(
+                        get("/study/" + study.getEncodePath() + "/events/" + event.getId())
+                        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("event/view"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"))
+                .andExpect(model().attributeExists("event"))
+        ;
+    }
+
+    @Test
+    @DisplayName("모임 정보 수정")
+    @WithAccount(value = "1hoon")
+    void edit_event() throws Exception
+    {
+        Account account = accountRepository.findByNickname("1hoon");
+        // 스터디 생성
+        Study study = studyFactory.createStudy("test-study", account);
+        // 이벤트 생성
+        Event event = eventFactory.createEvent(study, account);
+
+        mockMvc.perform(
+                        post("/study/" + study.getEncodePath() + "/events/" + event.getId() + "/edit")
+                                .param("title", "테스트 모임 수정")
+                                .param("limitOfEnrollments", "20")
+                                .param("endEnrollmentDateTime", LocalDateTime.now().plusDays(1).toString())
+                                .param("startDateTime", LocalDateTime.now().plusDays(2).toString())
+                                .param("endDateTime", LocalDateTime.now().plusDays(17).toString())
+                            .with(csrf())
+                        )
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/study/" + study.getEncodePath() + "/events/" + event.getId()))
+        ;
+
+        assertThat(event.getTitle()).isEqualTo("테스트 모임 수정");
+        assertThat(event.getLimitOfEnrollments()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("모임 취소")
+    @WithAccount(value = "1hoon")
+    void remove_event() throws Exception
+    {
+        Account account = accountRepository.findByNickname("1hoon");
+        // 스터디 생성
+        Study study = studyFactory.createStudy("test-study", account);
+        // 이벤트 생성
+        Event event = eventFactory.createEvent(study, account);
+
+        mockMvc.perform(
+                        delete("/study/" + study.getEncodePath() + "/events/" + event.getId())
+                            .with(csrf())
+                        )
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/study/" + study.getEncodePath() + "/events"))
+        ;
+
+        Optional<Event> byId = eventRepository.findById(event.getId());
+        assertThat(byId.isEmpty()).isTrue();
     }
 }
