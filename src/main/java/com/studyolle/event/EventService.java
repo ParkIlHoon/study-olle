@@ -95,11 +95,12 @@ public class EventService
     public void disenrollEvent(Event event, Account account)
     {
         Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, account).orElseThrow();
-
-        event.removeEnrollment(enrollment);
-        enrollmentRepository.delete(enrollment);
-
-        event.acceptTheFirstWaitingEnrollment();
+        if (!enrollment.isAttended())
+        {
+            event.removeEnrollment(enrollment);
+            enrollmentRepository.delete(enrollment);
+            event.acceptTheFirstWaitingEnrollment();
+        }
     }
 
     /**
@@ -110,5 +111,10 @@ public class EventService
     public void acceptEnrollment(Event event, Enrollment enrollment)
     {
         event.accept(enrollment);
+    }
+
+    public void rejectEnrollment(Event event, Enrollment enrollment)
+    {
+        event.reject(enrollment);
     }
 }

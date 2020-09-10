@@ -165,4 +165,12 @@ public class Event
             enrollment.setAccepted(true);
         }
     }
+
+    public void reject(Enrollment enrollment)
+    {
+        if (this.canReject(enrollment))
+        {
+            enrollment.setAccepted(false);
+        }
+    }
 }

@@ -96,18 +96,17 @@ public class EventController
      * 모임 뷰 요청 메서드
      * @param account
      * @param path
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverters 를 이용해 id 에 해당하는 Event 엔티티 객체로 받아옴
      * @param model
      * @return
      */
     @GetMapping("/events/{id}")
     public String getEvent(@CurrentUser Account account,
                            @PathVariable String path,
-                           @PathVariable Long id,
+                           @PathVariable("id") Event event,
                            Model model)
     {
         Study study = studyRepository.findStudyWithMembersAndManagersByPath(path);
-        Event event = eventRepository.findById(id).orElseThrow();
 
         model.addAttribute("account", account);
         model.addAttribute("study", study);
@@ -156,18 +155,17 @@ public class EventController
      * 모임 정보 수정 뷰 요청 메서드
      * @param account
      * @param path
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 id 에 해당하는 Event 엔티티 객체로 받아옴
      * @param model
      * @return
      */
     @GetMapping("/events/{id}/edit")
     public String updateEventForm (@CurrentUser Account account,
                                    @PathVariable String path,
-                                   @PathVariable Long id,
+                                   @PathVariable("id") Event event,
                                    Model model)
     {
         Study study = studyService.getStudyForUpdateSelf(account, path);
-        Event event = eventRepository.findById(id).orElseThrow();
 
         model.addAttribute("account", account);
         model.addAttribute("study", study);
@@ -181,7 +179,7 @@ public class EventController
      * 모임 정보 수정 요청 메서드
      * @param account
      * @param path
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 id 에 해당하는 Event 엔티티 객체로 받아옴
      * @param eventForm
      * @param errors
      * @param model
@@ -191,14 +189,13 @@ public class EventController
     @PostMapping("/events/{id}/edit")
     public String updateEventSubmit(@CurrentUser Account account,
                                     @PathVariable String path,
-                                    @PathVariable Long id,
+                                    @PathVariable("id") Event event,
                                     @Valid @ModelAttribute EventForm eventForm,
                                     Errors errors,
                                     Model model,
                                     RedirectAttributes attributes)
     {
         Study study = studyService.getStudyForUpdateSelf(account, path);
-        Event event = eventRepository.findById(id).orElseThrow();
         eventForm.setEventType(event.getEventType());
 
         eventFormValidator.validateUpdateForm(eventForm, event, errors);
@@ -219,17 +216,15 @@ public class EventController
      * 모임 취소 요청 메서드
      * @param account
      * @param path
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 id 에 해당하는 Event 엔티티 객체로 받아옴
      * @return
      */
     @DeleteMapping("/events/{id}")
     public String cancelEvent(@CurrentUser Account account,
                               @PathVariable String path,
-                              @PathVariable Long id)
+                              @PathVariable("id") Event event)
     {
         Study study = studyService.getStudyForJoin(account, path);
-        Event event = eventRepository.findById(id).orElseThrow();
-
         eventService.deleteEvent(event);
         return "redirect:/study/" + study.getEncodePath() + "/events";
     }
@@ -238,19 +233,16 @@ public class EventController
      * 모임 참가신청 요청 메서드
      * @param account
      * @param path
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 id 에 해당하는 Event 엔티티 객체로 받아옴
      * @return
      */
     @PostMapping("/events/{id}/enroll")
     public String enrollEvent(@CurrentUser Account account,
                               @PathVariable String path,
-                              @PathVariable Long id)
+                              @PathVariable("id") Event event)
     {
         Study study = studyService.getStudyForEnroll(path);
-        Event event = eventRepository.findById(id).orElseThrow();
-
         eventService.enrollEvent(event, account);
-
         return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
     }
 
@@ -258,41 +250,54 @@ public class EventController
      * 모임 참가취소 요청 메서드
      * @param account
      * @param path
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 id 에 해당하는 Event 엔티티 객체로 받아옴
      * @return
      */
     @PostMapping("/events/{id}/disenroll")
     public String disenrollEvent(@CurrentUser Account account,
                                  @PathVariable String path,
-                                 @PathVariable Long id)
+                                 @PathVariable("id") Event event)
     {
         Study study = studyService.getStudyForEnroll(path);
-        Event event = eventRepository.findById(id).orElseThrow();
-
         eventService.disenrollEvent(event, account);
-
         return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
     }
 
     /**
-     * 관리자 확인 모임 신청 요청 메서드
+     * 관리자 확인 모임 신청허용 요청 메서드
      * @param account
      * @param path
-     * @param eventId
-     * @param id
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 eventId 에 해당하는 Event 엔티티 객체로 받아옴
+     * @param enrollment Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 enrollmentId 에 해당하는 Enrollment 엔티티 객체로 받아옴
      * @return
      */
-    @GetMapping("/events/{eventId}/enrollments/{id}/accept")
+    @GetMapping("/events/{eventId}/enrollments/{enrollmentId}/accept")
     public String acceptEnroll(@CurrentUser Account account,
                                @PathVariable String path,
-                               @PathVariable Long eventId,
-                               @PathVariable Long id)
+                               @PathVariable("eventId") Event event,
+                               @PathVariable("enrollmentId") Enrollment enrollment)
     {
         Study study = studyService.getStudyForEnroll(path);
-        Event event = eventRepository.findById(eventId).orElseThrow();
-        Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow();
-
         eventService.acceptEnrollment(event, enrollment);
-        return "redirect:/study/" + study.getEncodePath() + "/events/" + eventId;
+        return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
+    }
+
+    /**
+     * 관리자 확인 모임 신청취소 요청 메서드
+     * @param account
+     * @param path
+     * @param event Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 eventId 에 해당하는 Event 엔티티 객체로 받아옴
+     * @param enrollment Spring Data JPA 에서 제공해주는 DomainClassConverter 를 이용해 enrollmentId 에 해당하는 Enrollment 엔티티 객체로 받아옴
+     * @return
+     */
+    @GetMapping("/events/{eventId}/enrollments/{enrollmentId}/reject")
+    public String rejectEnroll(@CurrentUser Account account,
+                               @PathVariable String path,
+                               @PathVariable("eventId") Event event,
+                               @PathVariable("enrollmentId") Enrollment enrollment)
+    {
+        Study study = studyService.getStudyForEnroll(path);
+        eventService.rejectEnrollment(event, enrollment);
+        return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
     }
 }
