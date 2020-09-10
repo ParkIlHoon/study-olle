@@ -1,10 +1,8 @@
 package com.studyolle.modules.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studyolle.modules.account.WithAccount;
-import com.studyolle.modules.account.AccountRepository;
-import com.studyolle.modules.account.AccountService;
-import com.studyolle.modules.account.Account;
+import com.studyolle.infra.AbstractContainerBaseTest;
+import com.studyolle.infra.MockMvcTest;
 import com.studyolle.modules.account.form.TagForm;
 import com.studyolle.modules.account.form.ZoneForm;
 import com.studyolle.modules.tag.Tag;
@@ -29,10 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-class SettingsControllerTest
+@MockMvcTest
+class SettingsControllerTest extends AbstractContainerBaseTest
 {
     @Autowired
     private MockMvc mockMvc;

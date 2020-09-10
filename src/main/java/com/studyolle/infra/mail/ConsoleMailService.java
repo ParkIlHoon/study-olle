@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * 메일을 실제 발송하지는 않고 콘솔에 출력한다.
  */
 @Component
-@Profile("local")
+@Profile({"local", "test"})
 @Slf4j
 public class ConsoleMailService implements EmailService
 {
