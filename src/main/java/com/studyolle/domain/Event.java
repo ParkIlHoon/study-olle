@@ -157,4 +157,12 @@ public class Event
             }
         }
     }
+
+    public void accept(Enrollment enrollment)
+    {
+        if (this.canAccept(enrollment))
+        {
+            enrollment.setAccepted(true);
+        }
+    }
 }

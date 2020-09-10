@@ -2,8 +2,10 @@ package com.studyolle.event;
 
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
+import com.studyolle.domain.Enrollment;
 import com.studyolle.domain.Event;
 import com.studyolle.domain.Study;
+import com.studyolle.enrollment.EnrollmentRepository;
 import com.studyolle.study.StudyRepository;
 import com.studyolle.study.StudyService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class EventController
     private final StudyRepository studyRepository;
     private final EventService eventService;
     private final EventRepository eventRepository;
+    private final EnrollmentRepository enrollmentRepository;
     private final ModelMapper modelMapper;
     private final EventFormValidator eventFormValidator;
 
@@ -269,5 +272,27 @@ public class EventController
         eventService.disenrollEvent(event, account);
 
         return "redirect:/study/" + study.getEncodePath() + "/events/" + event.getId();
+    }
+
+    /**
+     * 관리자 확인 모임 신청 요청 메서드
+     * @param account
+     * @param path
+     * @param eventId
+     * @param id
+     * @return
+     */
+    @GetMapping("/events/{eventId}/enrollments/{id}/accept")
+    public String acceptEnroll(@CurrentUser Account account,
+                               @PathVariable String path,
+                               @PathVariable Long eventId,
+                               @PathVariable Long id)
+    {
+        Study study = studyService.getStudyForEnroll(path);
+        Event event = eventRepository.findById(eventId).orElseThrow();
+        Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow();
+
+        eventService.acceptEnrollment(event, enrollment);
+        return "redirect:/study/" + study.getEncodePath() + "/events/" + eventId;
     }
 }

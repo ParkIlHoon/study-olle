@@ -101,4 +101,14 @@ public class EventService
 
         event.acceptTheFirstWaitingEnrollment();
     }
+
+    /**
+     * 신청 수락 메서드
+     * @param event
+     * @param enrollment
+     */
+    public void acceptEnrollment(Event event, Enrollment enrollment)
+    {
+        event.accept(enrollment);
+    }
 }
