@@ -1,5 +1,7 @@
-package com.studyolle.modules.event;
+package com.studyolle.modules.event.validator;
 
+import com.studyolle.modules.event.Event;
+import com.studyolle.modules.event.form.EventForm;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -11,7 +13,7 @@ import java.time.LocalDateTime;
  *
  * EventForm 데이터에 대한 값 검증을 수행하는 클래스
  *
- * @see com.studyolle.modules.event.EventForm
+ * @see EventForm
  * @see com.studyolle.modules.event.EventController
  */
 @Component

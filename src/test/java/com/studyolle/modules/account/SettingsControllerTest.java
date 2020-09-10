@@ -1,4 +1,4 @@
-package com.studyolle.modules.settings;
+package com.studyolle.modules.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyolle.modules.account.WithAccount;

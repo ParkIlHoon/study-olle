@@ -1,6 +1,7 @@
 package com.studyolle.modules.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.studyolle.infra.MockMvcTest;
 import com.studyolle.modules.account.WithAccount;
 import com.studyolle.modules.account.AccountFactory;
 import com.studyolle.modules.account.AccountRepository;
@@ -27,9 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
+@MockMvcTest
 class EventControllerTest
 {
     @Autowired

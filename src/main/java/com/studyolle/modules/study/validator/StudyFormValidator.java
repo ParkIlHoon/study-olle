@@ -1,5 +1,7 @@
-package com.studyolle.modules.study;
+package com.studyolle.modules.study.validator;
 
+import com.studyolle.modules.study.StudyRepository;
+import com.studyolle.modules.study.form.StudyForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -10,7 +12,7 @@ import org.springframework.validation.Validator;
  *
  * StudyForm 데이터에 대한 값 검증을 수행하는 클래스
  *
- * @see com.studyolle.modules.study.StudyForm
+ * @see StudyForm
  * @see com.studyolle.modules.study.StudyController
  */
 @Component
