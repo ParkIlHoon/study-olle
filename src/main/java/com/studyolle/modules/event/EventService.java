@@ -1,10 +1,13 @@
 package com.studyolle.modules.event;
 
 import com.studyolle.modules.account.Account;
+import com.studyolle.modules.event.event.EnrollmentAcceptEvent;
+import com.studyolle.modules.event.event.EnrollmentRejectEvent;
 import com.studyolle.modules.event.form.EventForm;
 import com.studyolle.modules.study.Study;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class EventService
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
     private final EnrollmentRepository enrollmentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 모임 신규 생성 메서드
@@ -109,10 +113,12 @@ public class EventService
     public void acceptEnrollment(Event event, Enrollment enrollment)
     {
         event.accept(enrollment);
+        eventPublisher.publishEvent(new EnrollmentAcceptEvent(enrollment));
     }
 
     public void rejectEnrollment(Event event, Enrollment enrollment)
     {
         event.reject(enrollment);
+        eventPublisher.publishEvent(new EnrollmentRejectEvent(enrollment));
     }
 }
