@@ -21,6 +21,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <h1>스터디 이벤트 리스너 클래스</h1>
@@ -48,7 +50,6 @@ public class StudyEventListener
     @EventListener
     public void handleStudyCreatedEvent(StudyCreatedEvent event)
     {
-        log.info(event.getStudy().getTitle() + " is Created.");
         Study study = studyRepository.findStudyWithTagsAndZonesById(event.getStudy().getId());
         Iterable<Account> all = accountRepository.findAll(AccountPredicates.findByTagsAndZones(study.getTags(), study.getZones()));
         all.forEach(account -> {
@@ -59,6 +60,26 @@ public class StudyEventListener
             if (account.isStudyCreatedByWeb())
             {
                 saveStudyCreatedNotification(study, account);
+            }
+        });
+    }
+
+    @EventListener
+    public void handleStudyUpdateEvent(StudyUpdateEvent event)
+    {
+        Study study = studyRepository.findStudyWithMembersAndManagersByPath(event.getStudy().getPath());
+        Set<Account> accounts = new HashSet<>();
+        accounts.addAll(study.getManagers());
+        accounts.addAll(study.getMembers());
+
+        accounts.forEach(account -> {
+            if (account.isStudyUpdatedByEmail())
+            {
+                sendStudyUpdateEmail(study, account, event.getMessage());
+            }
+            if (account.isStudyUpdatedByWeb())
+            {
+                saveStudyUpdateNotification(study, account, event.getMessage());
             }
         });
     }
@@ -102,6 +123,49 @@ public class StudyEventListener
                                                     .subject("[스터디올래] " + study.getTitle() + " 스터디가 개설되었습니다.")
                                                     .to(account.getEmail())
                                                     .message(message)
+                                                .build();
+        emailService.sendEmail(emailMessage);
+    }
+
+    /**
+     * 스터디 수정 알림 정보 저장 메서드
+     * @param study
+     * @param account
+     */
+    private void saveStudyUpdateNotification(Study study, Account account, String message) {
+        Notification notification = Notification.builder()
+                                                    .title(study.getTitle() + " 가 수정됨")
+                                                    .link("/study/" + study.getEncodePath())
+                                                    .checked(false)
+                                                    .createdDateTime(LocalDateTime.now())
+                                                    .message(message)
+                                                    .account(account)
+                                                    .notificationType(NotificationType.STUDY_UPDATED)
+                                                .build();
+
+        notificationRepository.save(notification);
+    }
+
+    /**
+     * 스터디 수정 알림 메일 발송 메서드
+     * @param study
+     * @param account
+     */
+    private void sendStudyUpdateEmail(Study study, Account account, String message)
+    {
+        Context context = new Context();
+        context.setVariable("link", "/study/" + study.getEncodePath());
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("linkName", study.getTitle());
+        context.setVariable("message", message);
+        context.setVariable("host", appProperties.getHost());
+
+        String email = templateEngine.process("mail/simple-link", context);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                                                    .subject("[스터디올래] " + study.getTitle() + " 스터디가 개설되었습니다.")
+                                                    .to(account.getEmail())
+                                                    .message(email)
                                                 .build();
         emailService.sendEmail(emailMessage);
     }

@@ -2,6 +2,7 @@ package com.studyolle.modules.study;
 
 import com.studyolle.modules.account.Account;
 import com.studyolle.modules.study.event.StudyCreatedEvent;
+import com.studyolle.modules.study.event.StudyUpdateEvent;
 import com.studyolle.modules.study.form.StudyForm;
 import com.studyolle.modules.tag.Tag;
 import com.studyolle.modules.zone.Zone;
@@ -89,6 +90,7 @@ public class StudyService
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionForm)
     {
         modelMapper.map(studyDescriptionForm, study);
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 소개를 수정했습니다."));
     }
 
     /**
@@ -216,6 +218,7 @@ public class StudyService
     public void closeStudy(Study study)
     {
         study.close();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디를 종료했습니다."));
     }
 
     /**
@@ -225,6 +228,7 @@ public class StudyService
     public void startRecruiting(Study study)
     {
         study.startRecruiting();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 시작했습니다."));
     }
 
     /**
@@ -234,6 +238,7 @@ public class StudyService
     public void stopRecruiting(Study study)
     {
         study.stopRecruiting();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 종료했습니다."));
     }
 
     /**
