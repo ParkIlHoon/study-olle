@@ -73,7 +73,7 @@ public class StudyEventListener
                                                     .title(study.getTitle() + " 가 개설됨")
                                                     .link("/study/" + study.getEncodePath())
                                                     .checked(false)
-                                                    .createdLocalDateTime(LocalDateTime.now())
+                                                    .createdDateTime(LocalDateTime.now())
                                                     .message(study.getShortDescription())
                                                     .account(account)
                                                     .notificationType(NotificationType.STUDY_CREATED)
