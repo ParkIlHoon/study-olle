@@ -38,6 +38,10 @@ import java.util.Set;
         @NamedAttributeNode("members"),
         @NamedAttributeNode("managers")
 })
+@NamedEntityGraph(name = "Study.withTagsAndZones", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones")
+})
 public class Study
 {
     @Id @GeneratedValue
