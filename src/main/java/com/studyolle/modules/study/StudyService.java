@@ -1,11 +1,13 @@
 package com.studyolle.modules.study;
 
 import com.studyolle.modules.account.Account;
+import com.studyolle.modules.study.event.StudyCreatedEvent;
 import com.studyolle.modules.study.form.StudyForm;
 import com.studyolle.modules.tag.Tag;
 import com.studyolle.modules.zone.Zone;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class StudyService
 {
     private final ModelMapper modelMapper;
     private final StudyRepository studyRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 스터디 개설 메서드
@@ -29,8 +32,10 @@ public class StudyService
      */
     public Study createNewStudy(Account account, Study study)
     {
-        study.addManager(account);
-        return studyRepository.save(study);
+        Study newStudy = studyRepository.save(study);
+        newStudy.addManager(account);
+        eventPublisher.publishEvent(new StudyCreatedEvent(newStudy));
+        return newStudy;
     }
 
     /**
