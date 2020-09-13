@@ -5,13 +5,17 @@ import com.studyolle.modules.study.event.StudyCreatedEvent;
 import com.studyolle.modules.study.event.StudyUpdateEvent;
 import com.studyolle.modules.study.form.StudyForm;
 import com.studyolle.modules.tag.Tag;
+import com.studyolle.modules.tag.TagRepository;
 import com.studyolle.modules.zone.Zone;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
 
 /**
  * <h1>Study 서비스 클래스</h1>
@@ -23,6 +27,7 @@ public class StudyService
 {
     private final ModelMapper modelMapper;
     private final StudyRepository studyRepository;
+    private final TagRepository tagRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -321,7 +326,7 @@ public class StudyService
      */
     public void addMember(Account account, Study study)
     {
-        study.getMembers().add(account);
+        study.addMember(account);
     }
 
     /**
@@ -331,7 +336,7 @@ public class StudyService
      */
     public void removeMember(Account account, Study study)
     {
-        study.getMembers().remove(account);
+        study.removeMember(account);
     }
 
     /**
@@ -344,5 +349,27 @@ public class StudyService
         Study study = studyRepository.findStudyOnlyByPath(path);
         checkExists(path, study);
         return study;
+    }
+
+    public void generateTestStudies(Account account)
+    {
+        for (int idx = 0; idx < 30; idx++)
+        {
+            String randomValue = RandomString.make();
+            Study study = Study.builder()
+                    .title("테스트 스터디 " + randomValue)
+                    .path("test-" + randomValue)
+                    .shortDescription("test description")
+                    .fullDescription("test description")
+                    .tags(new HashSet<>())
+                    .zones(new HashSet<>())
+                    .managers(new HashSet<>())
+                    .build();
+            study.publish();
+
+            Study newStudy = this.createNewStudy(account, study);
+            Tag jpa = tagRepository.findByTitle("JPA");
+            newStudy.getTags().add(jpa);
+        }
     }
 }

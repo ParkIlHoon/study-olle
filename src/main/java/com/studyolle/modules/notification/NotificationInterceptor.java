@@ -32,10 +32,6 @@ public class NotificationInterceptor implements HandlerInterceptor
             int count = notificationRepository.countByAccountAndChecked(account, false);
             modelAndView.addObject("hasNotification", count > 0);
         }
-        else
-        {
-            modelAndView.addObject("hasNotification", false);
-        }
     }
 
     private boolean isRedirectView(ModelAndView modelAndView)

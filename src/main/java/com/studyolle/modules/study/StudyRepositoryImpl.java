@@ -1,9 +1,11 @@
 package com.studyolle.modules.study;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.JPQLQuery;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-
-import java.util.List;
 
 import static com.studyolle.modules.account.QAccount.account;
 import static com.studyolle.modules.study.QStudy.study;
@@ -21,7 +23,7 @@ public class StudyRepositoryImpl extends QuerydslRepositorySupport implements St
     }
 
     @Override
-    public List<Study> findByKeyword(String keyword)
+    public Page<Study> findByKeyword(String keyword, Pageable pageable)
     {
         JPQLQuery<Study> query = from(study)
                                 .where(study.published.isTrue()
@@ -33,6 +35,10 @@ public class StudyRepositoryImpl extends QuerydslRepositorySupport implements St
                                 .leftJoin(study.zones, zone).fetchJoin()
                                 .leftJoin(study.members, account).fetchJoin()
                                 .distinct();
-        return query.fetch();
+
+        JPQLQuery<Study> pagination = getQuerydsl().applyPagination(pageable, query);
+        QueryResults<Study> studyQueryResults = pagination.fetchResults();
+
+        return new PageImpl<>(studyQueryResults.getResults(), pageable, studyQueryResults.getTotal());
     }
 }

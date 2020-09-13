@@ -13,6 +13,7 @@ import com.studyolle.modules.account.form.ZoneForm;
 import com.studyolle.modules.tag.TagRepository;
 import com.studyolle.modules.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -614,5 +616,12 @@ public class StudyController
         studyService.removeMember(account, study);
 
         return "redirect:/study/" + study.getEncodePath() + "/members";
+    }
+
+    @GetMapping("/study/data")
+    public String generateTestData(@CurrentUser Account account)
+    {
+        studyService.generateTestStudies(account);
+        return "redirect:/";
     }
 }

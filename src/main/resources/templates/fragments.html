@@ -49,7 +49,7 @@
                 <a class="nav-link" href="#" sec:authorize="!isAuthenticated()" th:href="@{/sign-up}">가입</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/notifications}">
+                <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/notifications}">
                     <i th:if="${!hasNotification}" class="fa fa-bell-o" aria-hidden="true"></i>
                     <span class="text-info" th:if="${hasNotification}"><i class="fa fa-bell" aria-hidden="true"></i></span>
                 </a>
