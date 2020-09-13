@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <h1>Study 리포지토리</h1>
  */
 @Transactional(readOnly = true)
-public interface StudyRepository extends JpaRepository<Study, Long>
+public interface StudyRepository extends JpaRepository<Study, Long>, StudyRepositoryCustom
 {
     boolean existsByPath(String path);
 

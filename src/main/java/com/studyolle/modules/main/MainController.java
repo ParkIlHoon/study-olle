@@ -4,12 +4,16 @@ import com.studyolle.modules.account.AccountRepository;
 import com.studyolle.modules.account.AccountService;
 import com.studyolle.modules.account.CurrentUser;
 import com.studyolle.modules.account.Account;
+import com.studyolle.modules.study.Study;
+import com.studyolle.modules.study.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 /**
  * <h1>메인 컨트롤러</h1>
@@ -22,6 +26,7 @@ public class MainController
 {
     private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final StudyRepository studyRepository;
 
     @GetMapping("/")
     public String home(@CurrentUser Account account, Model model)
@@ -99,5 +104,14 @@ public class MainController
 
         accountService.login(byEmail);
         return "logged-in-by-email";
+    }
+
+    @GetMapping("/search/study")
+    public String searchStudy (String keyword, Model model)
+    {
+        List<Study> studyList = studyRepository.findByKeyword(keyword);
+        model.addAttribute("studyList", studyList);
+        model.addAttribute("keyword", keyword);
+        return "search";
     }
 }
