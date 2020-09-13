@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 import java.util.List;
 
+import static com.studyolle.modules.account.QAccount.account;
 import static com.studyolle.modules.study.QStudy.study;
+import static com.studyolle.modules.tag.QTag.tag;
+import static com.studyolle.modules.zone.QZone.zone;
 
 public class StudyRepositoryImpl extends QuerydslRepositorySupport implements StudyRepositoryCustom
 {
@@ -25,7 +28,11 @@ public class StudyRepositoryImpl extends QuerydslRepositorySupport implements St
                                         .and(study.title.containsIgnoreCase(keyword))
                                         .or(study.tags.any().title.containsIgnoreCase(keyword))
                                         .or(study.zones.any().localNameOfCity.containsIgnoreCase(keyword))
-                                    );
+                                    )
+                                .leftJoin(study.tags, tag).fetchJoin()
+                                .leftJoin(study.zones, zone).fetchJoin()
+                                .leftJoin(study.members, account).fetchJoin()
+                                .distinct();
         return query.fetch();
     }
 }
