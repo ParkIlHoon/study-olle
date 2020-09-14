@@ -1,8 +1,14 @@
 package com.studyolle.modules.study;
 
+import com.studyolle.modules.account.Account;
+import com.studyolle.modules.tag.Tag;
+import com.studyolle.modules.zone.Zone;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * <h1>Study 리포지토리</h1>
@@ -31,4 +37,11 @@ public interface StudyRepository extends JpaRepository<Study, Long>, StudyReposi
 
     @EntityGraph(value = "Study.withTagsAndZones", type = EntityGraph.EntityGraphType.LOAD)
     Study findStudyWithTagsAndZonesById(Long id);
+
+    @EntityGraph(attributePaths = {"members", "tags", "zones"}, type = EntityGraph.EntityGraphType.FETCH)
+    List<Study> findTop9ByPublishedTrueAndClosedFalseOrderByPublishedDateTimeDesc();
+
+    List<Study> findFirst5ByManagersContainingAndClosedOrderByPublishedDateTimeDesc(Account account, boolean closed);
+
+    List<Study> findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeDesc(Account account, boolean closed);
 }

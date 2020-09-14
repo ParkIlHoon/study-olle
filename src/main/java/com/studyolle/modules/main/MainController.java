@@ -4,6 +4,8 @@ import com.studyolle.modules.account.AccountRepository;
 import com.studyolle.modules.account.AccountService;
 import com.studyolle.modules.account.CurrentUser;
 import com.studyolle.modules.account.Account;
+import com.studyolle.modules.event.Enrollment;
+import com.studyolle.modules.event.EnrollmentRepository;
 import com.studyolle.modules.study.Study;
 import com.studyolle.modules.study.StudyRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <h1>메인 컨트롤러</h1>
@@ -31,16 +36,36 @@ public class MainController
     private final AccountService accountService;
     private final AccountRepository accountRepository;
     private final StudyRepository studyRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @GetMapping("/")
     public String home(@CurrentUser Account account, Model model)
     {
         if (account != null)
         {
-            model.addAttribute(account);
-        }
+            Account byNickname = accountRepository.findAccountWithTagsAndZonesById(account.getId());
+            List<Enrollment> enrollmentList = enrollmentRepository.findByAccountAndAcceptedAndAttendedFalse(byNickname, true);
+            List<Study> studyList = studyRepository.findByAccount(byNickname.getTags(), byNickname.getZones());
 
-        return "index";
+            Set<Account> accountSet = new HashSet<>();
+            accountSet.add(byNickname);
+
+            List<Study> studyManagerOf = studyRepository.findFirst5ByManagersContainingAndClosedOrderByPublishedDateTimeDesc(byNickname, false);
+            List<Study> studyMemberOf = studyRepository.findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeDesc(byNickname, false);
+
+            model.addAttribute("account", byNickname);
+            model.addAttribute("enrollmentList", enrollmentList);
+            model.addAttribute("studyList", studyList);
+            model.addAttribute("studyManagerOf", studyManagerOf);
+            model.addAttribute("studyMemberOf", studyMemberOf);
+            return "index-after-login";
+        }
+        else
+        {
+            List<Study> studyList = studyRepository.findTop9ByPublishedTrueAndClosedFalseOrderByPublishedDateTimeDesc();
+            model.addAttribute("studyList", studyList);
+            return "index";
+        }
     }
 
     @GetMapping("/login")
