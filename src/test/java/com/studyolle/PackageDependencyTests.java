@@ -13,6 +13,7 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
 @AnalyzeClasses(packagesOf = StudyolleApplication.class)
 public class PackageDependencyTests
 {
+    private static final String MAIN = "..modules.main..";
     private static final String STUDY = "..modules.study..";
     private static final String EVENT = "..modules.event..";
     private static final String ACCOUNT = "..modules.account..";
@@ -26,7 +27,7 @@ public class PackageDependencyTests
 
     @ArchTest
     ArchRule studyPackageRule = classes().that().resideInAPackage(STUDY)
-            .should().onlyBeAccessed().byClassesThat().resideInAnyPackage(STUDY, EVENT);
+            .should().onlyBeAccessed().byClassesThat().resideInAnyPackage(MAIN, STUDY, EVENT);
 
     @ArchTest
     ArchRule eventPackageRule = classes().that().resideInAPackage(EVENT)
